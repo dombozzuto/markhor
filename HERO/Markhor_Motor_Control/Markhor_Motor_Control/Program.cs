@@ -8,39 +8,47 @@
 using System;
 using System.Threading;
 using Microsoft.SPOT;
+using System.Collections;
 
 namespace Markhor_Motor_Control
 {
     public class Program
     {
+        static CTRE.TalonSrx leftDriveMotor = new CTRE.TalonSrx(1);
+        static CTRE.TalonSrx rightDrive = new CTRE.TalonSrx(2);
+        static CTRE.TalonSrx scoopsMotor = new CTRE.TalonSrx(3);
+        static CTRE.TalonSrx depthMotor = new CTRE.TalonSrx(4);
+        static CTRE.TalonSrx winchMotor  = new CTRE.TalonSrx(5);
+
+
         /** Serial object, this is constructed on the serial number. */
-        static System.IO.Ports.SerialPort _uart;
+        static System.IO.Ports.SerialPort uart;
         /** Ring buffer holding the bytes to transmit. */
-        static byte[] _tx = new byte[1024];
-        static int _txIn = 0;
-        static int _txOut = 0;
-        static int _txCnt = 0;
+        static byte[] tx = new byte[1024];
+        static int txIn = 0;
+        static int txOut = 0;
+        static int txCnt = 0;
         /** Cache for reading out bytes in serial driver. */
-        static byte[] _rx = new byte[1024];
+        static byte[] rx = new byte[1024];
         /* initial message to send to the terminal */
-        static byte[] _helloMsg = MakeByteArrayFromString("Markhor_Motor_Control - Start Typing and HERO will echo the letters back.\r\n");
+        static byte[] initMessage = MakeByteArrayFromString("System has been initialized.\r\n");
         /** @return the maximum number of bytes we can read*/
         private static int CalcRemainingCap()
         {
             /* firs calc the remaining capacity in the ring buffer */
-            int rem = _tx.Length - _txCnt;
+            int rem = tx.Length - txCnt;
             /* cap the return to the maximum capacity of the rx array */
-            if (rem > _rx.Length)
-                rem = _rx.Length;
+            if (rem > rx.Length)
+                rem = rx.Length;
             return rem;
         }
         /** @param received byte to push into ring buffer */
         private static void PushByte(byte datum)
         {
-            _tx[_txIn] = datum;
-            if (++_txIn >= _tx.Length)
-                _txIn = 0;
-            ++_txCnt;
+            tx[txIn] = datum;
+            if (++txIn >= tx.Length)
+                txIn = 0;
+            ++txCnt;
         }
         /** 
          * Pop the oldest byte out of the ring buffer.
@@ -49,59 +57,70 @@ namespace Markhor_Motor_Control
          */
         private static byte PopByte()
         {
-            byte retval = _tx[_txOut];
-            if (++_txOut >= _tx.Length)
-                _txOut = 0;
-            --_txCnt;
+            byte retval = tx[txOut];
+            if (++txOut >= tx.Length)
+                txOut = 0;
+            --txCnt;
             return retval;
         }
         /** entry point of the application */
         public static void Main()
         {
-            /* temporary array */
-            byte[] scratch = new byte[1];
-            /* open the UART, select the com port based on the desired gadgeteer port.
-             *   This utilizes the CTRE.IO Library.
-             *   The full listing of COM ports on HERO can be viewed in CTRE.IO
-             *   
-             */
-            _uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 115200);
-            _uart.Open();
+            ArrayList motorData = new ArrayList();
+            uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 115200);
+            uart.Open();
             /* send a message to the terminal for the user to see */
-            _uart.Write(_helloMsg, 0, _helloMsg.Length);
+            uart.Write(initMessage, 0, initMessage.Length);
             /* loop forever */
             while (true)
             {
                 /* read bytes out of uart */
-                if (_uart.BytesToRead > 0)
+                if (uart.BytesToRead > 0)
                 {
-                    int readCnt = _uart.Read(_rx, 0, CalcRemainingCap());
+                    int readCnt = uart.Read(rx, 0, CalcRemainingCap());
                     for (int i = 0; i < readCnt; ++i)
                     {
-                        PushByte(_rx[i]);
+                        PushByte(rx[i]);
                     }
                 }
-                /* if there are bufferd bytes echo them back out */
-                if (_uart.CanWrite && (_txCnt > 0))
+
+                byte[] outboundMessage = MakeByteArrayFromString(makeOutboundMessage(motorData));
+                if (uart.CanWrite)
                 {
-                    scratch[0] = PopByte();
-                    _uart.Write(scratch, 0, 1);
+                    uart.Write(outboundMessage, 0, outboundMessage.Length);
                 }
                 /* wait a bit, keep the main loop time constant, this way you can add to this example (motor control for example). */
                 System.Threading.Thread.Sleep(10);
             }
         }
-        /**
-         * Helper routine for creating byte arrays from strings.
-         * @param msg string message to covnert.
-         * @return byte array version of string.
-         */
+
         private static byte[] MakeByteArrayFromString(String msg)
         {
             byte[] retval = new byte[msg.Length];
             for (int i = 0; i < msg.Length; ++i)
                 retval[i] = (byte)msg[i];
             return retval;
+        }
+
+        private static String MakeStringFromByteArray(byte[] data)
+        {
+            String retval = "";
+            for(int i = 0; i < data.Length; i++)
+            {
+                retval += data[i].ToString();
+            }
+            return retval;
+        }
+
+        private static String makeOutboundMessage(ArrayList controlData)
+        {
+            String outboundMessage = "";
+            for(int i = 0; i < controlData.Count; i++)
+            {
+                outboundMessage += ((ControlData)controlData[i]).getWriteableMessageString();
+                outboundMessage += (i < controlData.Count - 1) ? "|" : "";
+            }
+            return outboundMessage;
         }
     }
 }

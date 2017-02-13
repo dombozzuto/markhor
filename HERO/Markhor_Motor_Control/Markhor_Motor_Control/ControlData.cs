@@ -25,6 +25,12 @@ namespace Markhor_Motor_Control
             setpoint_converted = convertRawToSetpoint(setpoint);
         }
 
+        public String getWriteableMessageString()
+        {
+            String msg = "<" + deviceID.ToString() + ":" + mode.ToString() + ":" + setpoint.ToString() + ">";
+            return msg;
+        }
+
         private Double convertRawToSetpoint(int setpoint)
         {
             Double scaledSetpoint;
@@ -32,5 +38,7 @@ namespace Markhor_Motor_Control
             scaledSetpoint = ((Double)setpoint / (Double)RAW_MID);
             return scaledSetpoint;
         }
+
+
     }
 }
