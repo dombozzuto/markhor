@@ -4,18 +4,18 @@ import can
 class MotorHandler:
 
 	def __init__(self):
-		self.bus = can.interface.Bus()
 		self.motors = []
-
-	def getBus(self):
-		return self.bus
 
 	def addMotor(self, motor):
 		self.motors.append(motor)
 
-	def updateMotors(self):
+	def updateMotors(self, update_msg):
 		for motor in self.motors:
-			motor.update()
+			motor.update(update_msg)
 
-	def run(self):
-		self.updateMotors()
+	def getMotorStateMessage(self):
+		msg = ""
+		for motor in self.motors:
+			msg += motor.getStateMessage()
+			msg += "\n"
+		return msg

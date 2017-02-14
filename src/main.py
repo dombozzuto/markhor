@@ -1,36 +1,42 @@
 import Constants as CONSTANTS
+import MotorModes as MOTOR_MODES
 
 from Motor import Motor
 from MotorHandler import MotorHandler
 from Sensor import Sensor
 from SensorHandler import SensorHandler
 from RobotState import RobotState
+from SerialHandler import SerialHandler
+
+import time
+from time import gmtime, strftime
 
 # initialization:
 # CAN Bus Device IDs
-leftDriveDeviceID = 1
-rightDriveDeviceID = 2
-collectorDepthDeviceID = 3
-collectorScoopsDeviceID = 4
-winchDeviceID = 5
+
 
 #initialize handlers
 motorHandler = MotorHandler()
-sensorHandler = SensorHandler('COM3')
+sensorHandler = SensorHandler()
+
+#motorSerialHandler = SerialHandler('COM4')
+sensorSerialHandler = SerialHandler('COM3')
+
+sensorSerialHandler.initSerial()
 
 # initalize motors
-leftDriveMotor = Motor(leftDriveDeviceID)
-rightDriveMotor = Motor(rightDriveDeviceID)
-collectorDepthMotor = Motor(collectorDepthDeviceID)
-collectorScoopsMotor = Motor(collectorScoopsDeviceID)
-winchMotor = Motor(winchDeviceID)
+leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.SPEED)
+rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.SPEED)
+collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.SPEED)
+collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_DEVICE_ID, MOTOR_MODES.SPEED)
+winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.SPEED)
 
 # initialize motor handler and add motors
-motorHandler.addMotor(leftDriveMotor, motorHandler.getBus())
-motorHandler.addMotor(rightDriveMotor, motorHandler.getBus())
-motorHandler.addMotor(collectorDepthMotor, motorHandler.getBus())
-motorHandler.addMotor(collectorScoopsMotor, motorHandler.getBus())
-motorHandler.addMotor(winchMotor, motorHandler.getBus())
+motorHandler.addMotor(leftDriveMotor)
+motorHandler.addMotor(rightDriveMotor)
+motorHandler.addMotor(collectorDepthMotor)
+motorHandler.addMotor(collectorScoopsMotor)
+motorHandler.addMotor(winchMotor)
 
 # initialize sensors
 leftDriveCurrentSense = Sensor("LeftDriveCurrentSense")
@@ -52,14 +58,16 @@ sensorHandler.addSensor(scoopReedSwitch)
 sensorHandler.addSensor(bucketMaterialDepthSense)
 
 # initialize robotState
-RobotState robotState = RobotState()
-
-
+robotState = RobotState()
 
 # final line before entering main loop
 robotEnabled = True
+time.sleep(0.5)
 
 while robotEnabled:
+
+	loopStartTime = time.time()
+	print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000))
 
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
@@ -76,54 +84,55 @@ while robotEnabled:
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 
-	else if(currentState == "ROTATE_TO_MARKER"):
+	elif(currentState == "ROTATE_TO_MARKER"):
+		pass
 		#rotate motors according to camera
 
-	else if(currentState == "DRIVE_TO_DIG_AREA"):
+	elif(currentState == "DRIVE_TO_DIG_AREA"):
 		leftDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
 		rightDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 
-	else if(currentState == "STOP_AT_DIG_AREA"):
+	elif(currentState == "STOP_AT_DIG_AREA"):
 		leftDriveMotor.setSpeed(0)
 		rightDriveMotor.setSpeed(0)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 
-	else if(currentState == "RUN_SCOOPS"):
+	elif(currentState == "RUN_SCOOPS"):
 		leftDriveMotor.setSpeed(0)
 		rightDriveMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(CONSTANTS.SCOOP_SPEED)
 		collectorDepthMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 
-	else if(currentState == "INCREMENT_DEPTH"):
+	elif(currentState == "INCREMENT_DEPTH"):
 		collectorDepthMotor.setSpeed(CONSTANTS.DEPTH_SPEED)
 
-	else if(currentState == "DECREMENT_DEPTH"):
+	elif(currentState == "DECREMENT_DEPTH"):
 		collectorDepthMotor.setSpeed(-CONSTANTS.DEPTH_SPEED)
 
-	else if(currentState == "STOP_SCOOPS"):
+	elif(currentState == "STOP_SCOOPS"):
 		collectorScoopsMotor.setSpeed(0)
 
-	else if(currentState == "DRIVE_TO_COLLECTION_BIN"):
+	elif(currentState == "DRIVE_TO_COLLECTION_BIN"):
 		leftDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
 		rightDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
 
-	else if(currentState == "STOP_AT_COLLECTION_BIN"):
+	elif(currentState == "STOP_AT_COLLECTION_BIN"):
 		leftDriveMotor.setSpeed(0)
 		rightDriveMotor.setSpeed(0)
 
-	else if(currentState == "RAISE_BUCKET"):
+	elif(currentState == "RAISE_BUCKET"):
 		winchMotor.setSpeed(CONSTANTS.WINCH_SPEED)
 
-	else if(currentState == "LOWER_BUCKET"):
+	elif(currentState == "LOWER_BUCKET"):
 		winchMotor.setSpeed(-CONSTANTS.WINCH_SPEED)
 
-	else if(currentState == "TELEOP_CONTROL"):
+	elif(currentState == "TELEOP_CONTROL"):
 		#do teleop
 		pass
 
@@ -144,6 +153,31 @@ while robotEnabled:
 		if(lastState == None):
 			robotState.setState("ROTATE_TO_MARKER");
 
-	else if(currentState == "ROTATE_TO_MARKER"):
-
+	elif(currentState == "ROTATE_TO_MARKER"):
+		pass
 		# if marker is found, rotate towards dig area
+
+
+	# +----------------------------------------------+
+	# |          Communication & Updates             |
+	# +----------------------------------------------+
+	# Update the motor values locally, then send new values over
+	# serial
+	#inboundMotorMessage = motorSerialHandler.getMessage()
+	#motorHandler.updateMotors(inboundMotorMessage)
+	#outboundMotorMessage = motorHandler.getMotorStateMessage()
+	#motorSerialHandler.sendMessage(outboundMotorMessage)
+
+	# Update the sensor values locally
+	inboundSensorMessage = sensorSerialHandler.getMessage()
+	sensorHandler.updateSensors(inboundSensorMessage)
+
+
+
+	#sleep to maintain a more constant thread time (specified in Constants.py)
+	loopEndTime = time.time()
+	loopExecutionTime = loopEndTime - loopStartTime
+	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime
+	if(sleepTime > 0):
+		time.sleep(sleepTime)
+

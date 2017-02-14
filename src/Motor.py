@@ -1,7 +1,12 @@
+import re
+import Constants as CONSTANTS
+import MotorModes as MOTOR_MODES
+
 class Motor:
 
-	def __init__(self, devID, mode):
-		self.deviceID = devID
+	def __init__(self, motor_name, dev_id, mode):
+		self.motor_name = motor_name
+		self.deviceID = dev_id
 		self.setpoint_val = 0
 		self.actual_val = 0
 		self.mode = mode
@@ -15,39 +20,48 @@ class Motor:
 	the message is invald, ignore it
 	'''
 	def update(self, update_info):
-		# remove the < and >
-		message = message[1:-1]
+		# message contains info for all motors, need to parse info specific to this motor
+		matchList = re.findall(r'<(\d+):(\d+):(\d+):(\d+)>', update_info, re.M|re.I)
 
-		# split the message meaningful parts
-		message_parts = message.split(":")
+		# check each match to see if this contains data for this motor controller
+		for match in matchList:
 
-		if(len(message_parts) < 2):
-			print "ERROR: Message has too few components and is probably malformed. Device ID: " + str(self.deviceID)
-			return None
+			# match has enough data elements to contain valid data
+			if(len(match) >= 4):
 
+				# be ready to throw an error if any data is incorrect
+				try:
+					#try to read all the values before assigning anything
+					msg_deviceID = int(match[0])
+					msg_feedback_val = int(match[1])
+					msg_forward_limit = bool(int(match[2]))
+					msg_reverse_limit = bool(int(match[3]))
 
-		# be ready to throw an error
-		try:
-			#try to read all the values before assigning anything
-			msg_deviceID = int(message_parts[0])
-			msg_feedback_val = int(message_parts[1])
-			msg_forward_limit = bool(int(message_parts[2]))
-			msg_reverse_limit = bool(int(message_parts[3]))
+					if(msg_deviceID == self.deviceID):
+						self.forward_limit = msg_forward_limit
+						self.reverse_limit = msg_reverse_limit
+						self.actual_val = msg_feedback_val
 
-			if(msg_deviceID == self.deviceID):
-				self.forward_limit = msg_forward_limit
-				self.reverse_limit = msg_reverse_limit
-				self.actual_val = msg_feedback_val
+				except:
+					print "ERROR: Unable to parse one or more of the message components. Device ID: " + str(self.deviceID)
 
-		except:
-			print "ERROR: Unable to parse one or more of the message components. Device ID: " + str(self.deviceID)
-
-	#set the speed of the motor from -1.0 to 1.0
+	# set the speed of the motor from -1.0 to 1.0
 	def setSpeed(self, speed):
+		if(speed > CONSTANTS.MAX_SPEED):
+			speed = CONSTANTS.MAX_SPEED
+		if(speed < CONSTANTS.MIN_SPEED):
+			speed = CONSTANTS.MIN_SPEED
 		self.setpoint_val = speed
 
-	def formMessage(self):
-		return "<" + str(deviceID) + ":" + str(mode) + ":" + str(setpoint) + ">"
+	# set the mode of the motor 
+	def setMode(self, mode):
+		if mode in MOTOR_MODES.ALL_MODES:
+			self.mode = mode
+		else:
+			print "ERROR: Invalid mode selected. Device ID: ", + str(self.deviceID)
+
+	def getStateMessage(self):
+		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(self.setpoint_val) + ">"
 
 
 	
