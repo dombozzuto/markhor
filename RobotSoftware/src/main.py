@@ -1,3 +1,8 @@
+import time
+import SocketServer
+import threading
+from threading import Thread
+
 import Constants as CONSTANTS
 import MotorModes as MOTOR_MODES
 
@@ -7,12 +12,13 @@ from Sensor import Sensor
 from SensorHandler import SensorHandler
 from RobotState import RobotState
 from SerialHandler import SerialHandler
+from NetworkHandler import NetworkHandler
+from MessageQueue import MessageQueue
 
-import time
 from time import gmtime, strftime
 
-# initialization:
-# CAN Bus Device IDs
+def runServer(server):
+	server.serve_forever()
 
 
 #initialize handlers
@@ -20,9 +26,19 @@ motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
 #motorSerialHandler = SerialHandler('COM4')
-sensorSerialHandler = SerialHandler('COM3')
+#sensorSerialHandler = SerialHandler('COM3')
 
-sensorSerialHandler.initSerial()
+#initialize network comms & server thread
+inboundMessageQueue = MessageQueue()
+outboundMessageQueue = MessageQueue()
+
+networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
+
+server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
+serverThread = Thread(target=runServer, args=(server,))
+serverThread.start()
+
+#sensorSerialHandler.initSerial()
 
 # initialize motors
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.SPEED)
@@ -169,9 +185,13 @@ while robotEnabled:
 	#motorSerialHandler.sendMessage(outboundMotorMessage)
 
 	# Update the sensor values locally
-	inboundSensorMessage = sensorSerialHandler.getMessage()
-	sensorHandler.updateSensors(inboundSensorMessage)
+	#inboundSensorMessage = sensorSerialHandler.getMessage()
+	#sensorHandler.updateSensors(inboundSensorMessage)
 
+	if(not outboundMessageQueue.isEmpty()):
+		outboundMessageQueue.makeEmpty()
+	outboundMessageQueue.add("Here is a response")
+	
 
 
 	#sleep to maintain a more constant thread time (specified in Constants.py)

@@ -1,5 +1,6 @@
 import serial
-
+import time
+import sys
 class SerialHandler():
 
 	def __init__(self, port):
@@ -18,7 +19,8 @@ class SerialHandler():
 				return;
 			except:
 				print "FAILED: Open serial on port: " + ser_port_str
-				print "Retry in 5 seconds"
+				if(i != 2):
+					print "Retry in 5 seconds"
 				time.sleep(5)
 
 		print "CRITICAL FAILURE: Unable to open serial on port: " + ser_port_str
