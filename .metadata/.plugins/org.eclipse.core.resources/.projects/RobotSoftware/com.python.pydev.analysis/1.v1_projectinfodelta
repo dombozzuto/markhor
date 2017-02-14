@@ -1,0 +1,13 @@
+INSTUPsrc.RobotState
+E:\My_Documents\MQP\markhor\RobotSoftware\src\RobotState.py
+INFOS:&&1|1|2|0&&2|3|2|1&&3|4|2|5&&3|6|2|5&&2|7|2|1&&2|8|2|1&&2|9|2|1&&3|6|2|10&&3|4|2|10
+getLastState=8
+getState=7
+RobotState=1
+RobotState.__init__=5
+src.RobotState=2
+setState=9
+__init__=3
+currentState=4
+lastState=6
+RobotState.setState=10

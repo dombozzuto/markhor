@@ -1,0 +1,73 @@
+-- VERSION_4
+-- START DISKCACHE_2
+E:\My_Documents\MQP\markhor\.metadata\.plugins\org.eclipse.core.resources\.projects\RobotSoftware\com.python.pydev.analysis\v2_indexcache
+src.Constants|1487107507670810000|E:\My_Documents\MQP\markhor\RobotSoftware\src\Constants.py
+src.Motor|1487107426923359000|E:\My_Documents\MQP\markhor\RobotSoftware\src\Motor.py
+src.MotorModes|1487107426928363000|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorModes.py
+src.MotorHandler|1487107426925861000|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorHandler.py
+-- END DISKCACHE
+-- START DICTIONARY
+11
+6=MotorHandler
+8=Motor.update
+7=Motor.__init__
+2=src.Constants
+5=Motor
+4=src.Motor
+9=Motor.setMode
+1=src.MotorModes
+10=MotorHandler.__init__
+11=Motor.setSpeed
+3=src.MotorHandler
+-- END DICTIONARY
+-- START TREE 1
+26
+all|1|ALL_MODES!11@
+buc|0|
+col|2|COLLECTOR_DEPTH_DEVICE_ID!19@COLLECTOR_SCOOPS_DEVICE_ID!19@
+cur|1|CURRENT!11@
+dep|1|DEPTH_SPEED!19@
+dri|1|DRIVE_SPEED!19@
+inb|0|
+las|0|
+lef|1|LEFT_DRIVE_DEVICE_ID!19@
+loo|1|LOOP_DELAY_TIME!19@
+mat|0|
+max|1|MAX_SPEED!19@
+min|1|MIN_SPEED!19@
+mot|2|MotorHandler!25@Motor!33@
+msg|0|
+per|1|PERCENT_VBUS!11@
+pos|1|POSITION!11@
+rig|1|RIGHT_DRIVE_DEVICE_ID!19@
+rob|0|
+sco|1|SCOOP_SPEED!19@
+sen|0|
+ser|0|
+sh|0|
+sle|0|
+spe|1|SPEED!11@
+win|2|WINCH_DEVICE_ID!19@WINCH_SPEED!19@
+-- END TREE
+-- START TREE 2
+19
+__i|2|__init__!5&34@__init__!6&26@
+act|2|actual_val!7&35@actual_val!8&35@
+add|1|addMotor!6&26@
+cur|0|
+dev|1|deviceID!7&35@
+for|2|forward_limit!7&35@forward_limit!8&35@
+get|2|getStateMessage!5&34@getMotorStateMessage!6&26@
+ini|0|
+las|0|
+mod|2|mode!7&35@mode!9&35@
+mot|2|motor_name!7&35@motors!10&27@
+msg|0|
+rea|0|
+rev|2|reverse_limit!7&35@reverse_limit!8&35@
+sen|0|
+ser|0|
+set|4|setSpeed!5&34@setpoint_val!7&35@setpoint_val!11&35@setMode!5&34@
+upd|2|updateMotors!6&26@update!5&34@
+val|0|
+-- END TREE
