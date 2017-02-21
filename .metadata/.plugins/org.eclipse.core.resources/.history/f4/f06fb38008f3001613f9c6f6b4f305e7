@@ -1,0 +1,3 @@
+class NetworkQueue():
+    
+    def __init__(self):

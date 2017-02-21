@@ -1,13 +1,1 @@
-INSTUPsrc.Sensor
-E:\My_Documents\MQP\markhor\RobotSoftware\src\Sensor.py
-INFOS:&&1|1|2|0&&2|3|2|1&&3|4|2|5&&3|6|2|5&&2|7|2|1&&2|8|2|1&&2|9|2|1&&3|6|2|10
-getValue=7
-Sensor.__init__=5
-update=9
-Sensor.update=10
-getSensorName=8
-src.Sensor=2
-__init__=3
-value=6
-Sensor=1
-sensor_name=4
+DELSTRmain

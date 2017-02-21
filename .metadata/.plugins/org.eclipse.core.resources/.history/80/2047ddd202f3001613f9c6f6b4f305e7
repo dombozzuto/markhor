@@ -1,0 +1,21 @@
+import socket
+import SocketServer(SocketServer.BaseRequestHandler)
+
+class MyClass(object):
+
+
+
+    def __init__(self, messageStack):
+        pass
+    
+    
+    def sendMessage(self, msg):
+        pass
+    
+    def getMostRecentMessage(self):
+        return ""
+    
+    
+    
+
+        

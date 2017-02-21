@@ -1,0 +1,16 @@
+import socket
+
+class MyClass(object):
+
+
+
+    def __init__(self):
+        pass
+    
+    
+    def sendMessage(self):
+        pass
+    
+    def getMostRecentMessage(self):
+
+        

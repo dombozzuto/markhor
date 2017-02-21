@@ -67,7 +67,17 @@ namespace Markhor_Motor_Control
         public static void Main()
         {
             ArrayList motorData = new ArrayList();
-            uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 115200);
+            ControlData leftMotorData = new ControlData(1, 'v', 5000);
+            ControlData rightMotorData = new ControlData(2, 'v', 7000);
+            ControlData scoopMotorData = new ControlData(3, 'v', 9000);
+            ControlData depthMotorData = new ControlData(4, 'v', 3000);
+            ControlData winchMotorData = new ControlData(5, 'v', 1000);
+            motorData.Add(leftMotorData);
+            motorData.Add(rightMotorData);
+            motorData.Add(scoopMotorData);
+            motorData.Add(depthMotorData);
+            motorData.Add(winchMotorData);
+            uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 9600);
             uart.Open();
             /* send a message to the terminal for the user to see */
             uart.Write(initMessage, 0, initMessage.Length);
@@ -87,6 +97,7 @@ namespace Markhor_Motor_Control
                 byte[] outboundMessage = MakeByteArrayFromString(makeOutboundMessage(motorData));
                 if (uart.CanWrite)
                 {
+                    Debug.Print("Aqui" + (outboundMessage.Length).ToString());
                     uart.Write(outboundMessage, 0, outboundMessage.Length);
                 }
                 /* wait a bit, keep the main loop time constant, this way you can add to this example (motor control for example). */
@@ -118,8 +129,8 @@ namespace Markhor_Motor_Control
             for(int i = 0; i < controlData.Count; i++)
             {
                 outboundMessage += ((ControlData)controlData[i]).getWriteableMessageString();
-                outboundMessage += (i < controlData.Count - 1) ? "|" : "";
             }
+            outboundMessage += "\r\n";
             return outboundMessage;
         }
     }
