@@ -1,15 +1,7 @@
-import serial
-import io
-import re
-import time
-import logging
-import sys
-
 class SensorHandler:
 
 	def __init__(self):
 		self.sensors = []
-
 
 	def addSensor(self, sensor):
 		self.sensors.append(sensor)
@@ -18,6 +10,11 @@ class SensorHandler:
 		for sensor in self.sensors:
 			sensor.update(update_msg)
 
+	def printSensorValues(self):
+		sensorMsg = ""
+		for sensor in self.sensors:
+			sensorMsg += str(sensor.getValue()) + "|";
+		print sensorMsg
 	
 
 

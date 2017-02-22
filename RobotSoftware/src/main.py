@@ -25,8 +25,8 @@ def runServer(server):
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
-#motorSerialHandler = SerialHandler('COM4')
-#sensorSerialHandler = SerialHandler('COM3')
+#motorSerialHandler = SerialHandler('COM3')
+sensorSerialHandler = SerialHandler('COM3')
 
 #initialize network comms & server thread
 inboundMessageQueue = MessageQueue()
@@ -38,7 +38,7 @@ server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler
 serverThread = Thread(target=runServer, args=(server,))
 serverThread.start()
 
-#sensorSerialHandler.initSerial()
+sensorSerialHandler.initSerial()
 
 # initialize motors
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.SPEED)
@@ -185,8 +185,9 @@ while robotEnabled:
 	#motorSerialHandler.sendMessage(outboundMotorMessage)
 
 	# Update the sensor values locally
-	#inboundSensorMessage = sensorSerialHandler.getMessage()
-	#sensorHandler.updateSensors(inboundSensorMessage)
+	inboundSensorMessage = sensorSerialHandler.getMessage()
+	sensorHandler.updateSensors(inboundSensorMessage)
+	sensorHandler.printSensorValues()
 
 	if(not outboundMessageQueue.isEmpty()):
 		outboundMessageQueue.makeEmpty()
