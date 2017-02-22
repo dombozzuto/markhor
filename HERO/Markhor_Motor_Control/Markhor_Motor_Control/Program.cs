@@ -9,99 +9,113 @@ using System;
 using System.Threading;
 using Microsoft.SPOT;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace Markhor_Motor_Control
 {
     public class Program
     {
-        static CTRE.TalonSrx leftDriveMotor = new CTRE.TalonSrx(1);
-        static CTRE.TalonSrx rightDrive = new CTRE.TalonSrx(2);
-        static CTRE.TalonSrx scoopsMotor = new CTRE.TalonSrx(3);
-        static CTRE.TalonSrx depthMotor = new CTRE.TalonSrx(4);
-        static CTRE.TalonSrx winchMotor  = new CTRE.TalonSrx(5);
+        
 
-
-        /** Serial object, this is constructed on the serial number. */
         static System.IO.Ports.SerialPort uart;
-        /** Ring buffer holding the bytes to transmit. */
-        static byte[] tx = new byte[1024];
-        static int txIn = 0;
-        static int txOut = 0;
-        static int txCnt = 0;
-        /** Cache for reading out bytes in serial driver. */
         static byte[] rx = new byte[1024];
-        /* initial message to send to the terminal */
-        static byte[] initMessage = MakeByteArrayFromString("System has been initialized.\r\n");
-        /** @return the maximum number of bytes we can read*/
-        private static int CalcRemainingCap()
-        {
-            /* firs calc the remaining capacity in the ring buffer */
-            int rem = tx.Length - txCnt;
-            /* cap the return to the maximum capacity of the rx array */
-            if (rem > rx.Length)
-                rem = rx.Length;
-            return rem;
-        }
-        /** @param received byte to push into ring buffer */
-        private static void PushByte(byte datum)
-        {
-            tx[txIn] = datum;
-            if (++txIn >= tx.Length)
-                txIn = 0;
-            ++txCnt;
-        }
-        /** 
-         * Pop the oldest byte out of the ring buffer.
-         * Caller must ensure there is at least one byte to pop out by checking _txCnt.
-         * @return the oldest byte in buffer.
-         */
-        private static byte PopByte()
-        {
-            byte retval = tx[txOut];
-            if (++txOut >= tx.Length)
-                txOut = 0;
-            --txCnt;
-            return retval;
-        }
-        /** entry point of the application */
+
         public static void Main()
         {
-            ArrayList motorData = new ArrayList();
-            ControlData leftMotorData = new ControlData(1, 'v', 5000);
-            ControlData rightMotorData = new ControlData(2, 'v', 7000);
-            ControlData scoopMotorData = new ControlData(3, 'v', 9000);
-            ControlData depthMotorData = new ControlData(4, 'v', 3000);
-            ControlData winchMotorData = new ControlData(5, 'v', 1000);
-            motorData.Add(leftMotorData);
-            motorData.Add(rightMotorData);
-            motorData.Add(scoopMotorData);
-            motorData.Add(depthMotorData);
-            motorData.Add(winchMotorData);
+            CTRE.TalonSrx leftMotor = new CTRE.TalonSrx(1);
+            CTRE.TalonSrx rightMotor = new CTRE.TalonSrx(2);
+            CTRE.TalonSrx scoopMotor = new CTRE.TalonSrx(3);
+            CTRE.TalonSrx depthMotor = new CTRE.TalonSrx(4);
+            CTRE.TalonSrx winchMotor = new CTRE.TalonSrx(5);
+
+            ArrayList motorSetpointData = new ArrayList();
+            ArrayList motorStatusData = new ArrayList();
+            ArrayList talons = new ArrayList();
+
+            talons.Add(leftMotor);
+            talons.Add(rightMotor);
+            talons.Add(scoopMotor);
+            talons.Add(depthMotor);
+            talons.Add(winchMotor);
+
+            String inboundMessageStr = "";
+            String outboundMessageStr = "";
+
+            SetpointData leftMotorSetpointData = new SetpointData(1, 'v', 5000);
+            SetpointData rightMotorSetpointData = new SetpointData(2, 'v', 5000);
+            SetpointData scoopMotorSetpointData = new SetpointData(3, 'v', 5000);
+            SetpointData depthMotorSetpointData = new SetpointData(4, 'v', 5000);
+            SetpointData winchMotorSetpointData = new SetpointData(5, 'v', 5000);
+
+            StatusData leftMotorStatusData = new StatusData(1, leftMotor);
+            StatusData rightMotorStatusData = new StatusData(2, rightMotor);
+            StatusData scoopMotorStatusData = new StatusData(3, scoopMotor);
+            StatusData depthMotorStatusData = new StatusData(4, depthMotor);
+            StatusData winchMotorStatusData = new StatusData(5, winchMotor);
+
+            motorSetpointData.Add(leftMotorSetpointData);
+            motorSetpointData.Add(rightMotorSetpointData);
+            motorSetpointData.Add(scoopMotorSetpointData);
+            motorSetpointData.Add(depthMotorSetpointData);
+            motorSetpointData.Add(winchMotorSetpointData);
+
+            motorStatusData.Add(leftMotorStatusData);
+            motorStatusData.Add(rightMotorStatusData);
+            motorStatusData.Add(scoopMotorStatusData);
+            motorStatusData.Add(depthMotorStatusData);
+            motorStatusData.Add(winchMotorStatusData);
+
             uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 9600);
             uart.Open();
-            /* send a message to the terminal for the user to see */
-            uart.Write(initMessage, 0, initMessage.Length);
-            /* loop forever */
+            
+
             while (true)
             {
-                /* read bytes out of uart */
-                if (uart.BytesToRead > 0)
+                //read whatever is available from the UART into the inboundMessageStr
+                motorSetpointData = readUART(ref inboundMessageStr);
+
+                //attempt to process whatever was contained in the most recent message
+                processInboundData(motorSetpointData, talons);
+
+                //get a bunch of data from the motors in their current states
+                updateMotorStatusData(motorStatusData);
+
+                //package that motor data into a formatted message
+                outboundMessageStr = makeOutboundMessage(motorStatusData);
+
+                //send that message back to the main CPU
+                writeUART(makeOutboundMessage(motorSetpointData));
+
+                //keep the loop timing consistent //TODO: evaluate if this is necessary
+                System.Threading.Thread.Sleep(10);
+            }
+        }
+
+        private static ArrayList readUART(ref String messageStr)
+        {
+            ArrayList setpointData = new ArrayList();
+            if (uart.BytesToRead > 0)
+            {      
+                int readCnt = uart.Read(rx, 0, 1024);
+                for (int i = 0; i < readCnt; ++i)
                 {
-                    int readCnt = uart.Read(rx, 0, CalcRemainingCap());
-                    for (int i = 0; i < readCnt; ++i)
+                    messageStr += (char)rx[i];
+                    if ((char)rx[i] == '\n')
                     {
-                        PushByte(rx[i]);
+                        setpointData = MessageParser.parseMessage(messageStr);
+                        messageStr = "";
                     }
                 }
+            }
+            return setpointData;
+        }
 
-                byte[] outboundMessage = MakeByteArrayFromString(makeOutboundMessage(motorData));
-                if (uart.CanWrite)
-                {
-                    Debug.Print("Aqui" + (outboundMessage.Length).ToString());
-                    uart.Write(outboundMessage, 0, outboundMessage.Length);
-                }
-                /* wait a bit, keep the main loop time constant, this way you can add to this example (motor control for example). */
-                System.Threading.Thread.Sleep(10);
+        private static void writeUART(String messageStr)
+        {
+            byte[] outboundMessage = MakeByteArrayFromString(messageStr);
+            if (uart.CanWrite)
+            {
+                uart.Write(outboundMessage, 0, outboundMessage.Length);
             }
         }
 
@@ -113,25 +127,36 @@ namespace Markhor_Motor_Control
             return retval;
         }
 
-        private static String MakeStringFromByteArray(byte[] data)
+        private static void updateMotorStatusData(ArrayList statusData)
         {
-            String retval = "";
-            for(int i = 0; i < data.Length; i++)
+            for(int i = 0; i < statusData.Count; i++)
             {
-                retval += data[i].ToString();
+                ((StatusData)statusData[i]).updateStatusData();
             }
-            return retval;
         }
 
-        private static String makeOutboundMessage(ArrayList controlData)
+        private static String makeOutboundMessage(ArrayList statusData)
         {
             String outboundMessage = "";
-            for(int i = 0; i < controlData.Count; i++)
+            for(int i = 0; i < statusData.Count; i++)
             {
-                outboundMessage += ((ControlData)controlData[i]).getWriteableMessageString();
+                outboundMessage += ((StatusData)statusData[i]).getOutboundMessage();
             }
             outboundMessage += "\r\n";
             return outboundMessage;
         }
+
+        private static void processInboundData(ArrayList setpointDataList, ArrayList talons)
+        {
+            for(int i = 0; i < setpointDataList.Count; i++)
+            {
+                SetpointData setpointData = (SetpointData)setpointDataList[i];
+                ((CTRE.TalonSrx)talons[i + 1]).SetControlMode(setpointData.getMode());
+                ((CTRE.TalonSrx)talons[i + 1]).SetSetpoint(setpointData.getConvertedSetpoint());
+            }
+
+        }
     }
+
+        
 }

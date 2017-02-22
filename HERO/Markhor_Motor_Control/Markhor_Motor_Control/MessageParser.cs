@@ -2,7 +2,7 @@ using System;
 using Microsoft.SPOT;
 using System;
 using System.Collections;
-using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Markhor_Motor_Control
 {
@@ -13,7 +13,7 @@ namespace Markhor_Motor_Control
 
         }
 
-        public ArrayList parseMessage(String msg)
+        public static ArrayList parseMessage(String msg)
         {
             ArrayList controlData = new ArrayList();
 
@@ -32,7 +32,7 @@ namespace Markhor_Motor_Control
                             int deviceID = Int32.Parse(subparts[0]);
                             char mode = (subparts[1]).ToCharArray()[0];
                             int setpoint = Int32.Parse(subparts[2]);
-                            controlData.Add(new ControlData(deviceID, mode, setpoint));
+                            controlData.Add(new SetpointData(deviceID, mode, setpoint));
                         }
                     }
                     catch { /* malformed message, dont try to add this one */ }

@@ -49,5 +49,6 @@
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native" />
+    <Reference Include="System.Text.RegularExpressions" />
   </ItemGroup>
 </Project>
