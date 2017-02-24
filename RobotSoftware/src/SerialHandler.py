@@ -5,8 +5,9 @@ class SerialHandler():
 
 	def __init__(self, port):
 		self.ser = serial.Serial(timeout=1)
-		self.ser.baudrate = 57600
+		self.ser.baudrate = 115200
 		self.ser.port = port
+		self.inbound_buffer = bytearray()
 		self.msg = ""
 
 	def initSerial(self):
@@ -27,22 +28,39 @@ class SerialHandler():
 		time.sleep(0.1)
 		sys.exit("Could not begin serial communications with SensorBoard")
 
-	def read(self):
-		if(self.ser.is_open):
-			line = self.ser.readline()
-			self.parseAndUpdate(line)
-
-
 	def sendMessage(self, msg):
 		self.ser.write(msg.encode())
 		pass
 
-	def getMessage(self):
-		line = ""
-		if(self.ser.is_open):
-			line = self.ser.readline()
-		return str(line)
-		pass
+	def _readline(self):
+		eol = b'\r'
+		leneol = len(eol)
+		line = bytearray()
+		while True:
+			c = self.ser.read(1)
+			if c:
+				line += c
+				if line[-leneol:] == eol:
+					break
+			else:
+				break
+		return bytes(line)
 
+	def getMessage(self):
+		newMsg = ""
+		eol = b'\r'
+		leneol = len(eol)
+		if(self.ser.is_open):
+			#line = self._readline()
+			for i in range(2):
+				c = self.ser.read(1)
+				if c:
+					self.inbound_buffer += c
+					if self.inbound_buffer[-leneol:] == eol:
+						newMsg = str(self.inbound_buffer)
+						print "got a new message"
+						self.inbound_buffer = bytearray()
+		#return str(line)
+		return newMsg
 if __name__ == "__main__":
 	sh = SerialHandler('COM3')

@@ -25,8 +25,8 @@ def runServer(server):
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
-#motorSerialHandler = SerialHandler('COM3')
-sensorSerialHandler = SerialHandler('COM3')
+motorSerialHandler = SerialHandler('COM8')
+#sensorSerialHandler = SerialHandler('COM3')
 
 #initialize network comms & server thread
 inboundMessageQueue = MessageQueue()
@@ -34,18 +34,19 @@ outboundMessageQueue = MessageQueue()
 
 networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
 
-server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
-serverThread = Thread(target=runServer, args=(server,))
-serverThread.start()
+#server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
+#serverThread = Thread(target=runServer, args=(server,))
+#serverThread.start()
 
-sensorSerialHandler.initSerial()
+#sensorSerialHandler.initSerial()
+motorSerialHandler.initSerial()
 
 # initialize motors
-leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.SPEED)
-rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.SPEED)
-collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.SPEED)
-collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_DEVICE_ID, MOTOR_MODES.SPEED)
-winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.SPEED)
+leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.K_PERCENT_VBUS)
+rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.K_PERCENT_VBUS)
+collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.K_PERCENT_VBUS)
+collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_DEVICE_ID, MOTOR_MODES.K_PERCENT_VBUS)
+winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.K_PERCENT_VBUS)
 
 # initialize motor handler and add motors
 motorHandler.addMotor(leftDriveMotor)
@@ -88,6 +89,7 @@ while robotEnabled:
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
 
+	'''
 	# +----------------------------------------------+
 	# |              Current State Logic             |
 	# +----------------------------------------------+
@@ -173,25 +175,37 @@ while robotEnabled:
 		pass
 		# if marker is found, rotate towards dig area
 
-
+	'''
+	
+	leftDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
+	rightDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
+	collectorDepthMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
+	collectorScoopsMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
+	winchMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
+	
+	leftDriveMotor.setSpeed(1)
+	rightDriveMotor.setSpeed(0.75)
+	collectorDepthMotor.setSpeed(1)
+	collectorScoopsMotor.setSpeed(0.75)
+	winchMotor.setSpeed(1)
 	# +----------------------------------------------+
 	# |          Communication & Updates             |
 	# +----------------------------------------------+
 	# Update the motor values locally, then send new values over
 	# serial
-	#inboundMotorMessage = motorSerialHandler.getMessage()
-	#motorHandler.updateMotors(inboundMotorMessage)
-	#outboundMotorMessage = motorHandler.getMotorStateMessage()
-	#motorSerialHandler.sendMessage(outboundMotorMessage)
+	inboundMotorMessage = motorSerialHandler.getMessage()
+	motorHandler.updateMotors(inboundMotorMessage)
+	outboundMotorMessage = motorHandler.getMotorStateMessage()
+	motorSerialHandler.sendMessage(outboundMotorMessage)
 
 	# Update the sensor values locally
-	inboundSensorMessage = sensorSerialHandler.getMessage()
-	sensorHandler.updateSensors(inboundSensorMessage)
-	sensorHandler.printSensorValues()
+	#inboundSensorMessage = sensorSerialHandler.getMessage()
+	#sensorHandler.updateSensors(inboundSensorMessage)
+	#sensorHandler.printSensorValues()
 
-	if(not outboundMessageQueue.isEmpty()):
-		outboundMessageQueue.makeEmpty()
-	outboundMessageQueue.add("Here is a response")
+	#if(not outboundMessageQueue.isEmpty()):
+	#	outboundMessageQueue.makeEmpty()
+	#outboundMessageQueue.add("Here is a response")
 	
 
 

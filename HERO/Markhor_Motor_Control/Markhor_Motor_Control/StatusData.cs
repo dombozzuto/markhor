@@ -1,6 +1,4 @@
 using System;
-using Microsoft.SPOT;
-using static CTRE.TalonSrx;
 
 namespace Markhor_Motor_Control
 {
@@ -13,7 +11,7 @@ namespace Markhor_Motor_Control
         private int talonSpeed;             //encoder ticks/100ms
         private int talonSetpoint;          //setpoint based on control mode
 
-        private ControlMode controlMode;    //talon control mode
+        private CTRE.TalonSrx.ControlMode controlMode;    //talon control mode
 
         private int talonForwardLimitReached;
         private int talonReverseLimitReached;
@@ -57,6 +55,11 @@ namespace Markhor_Motor_Control
 
             outboundMessage += ">";
             return outboundMessage;
+        }
+
+        public String getOutboundMessage2()
+        {
+            return "<--->";
         }
     }
 }

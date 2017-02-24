@@ -16,7 +16,21 @@ namespace Markhor_Motor_Control
         public static ArrayList parseMessage(String msg)
         {
             ArrayList controlData = new ArrayList();
+            String pattern = "<([0-9]+):([0-9]+):([0-9]+)>";
+            MatchCollection mc = Regex.Matches(msg, pattern);
 
+            foreach(Match m in mc)
+            {
+                String data = m.Value;
+                data = data.Substring(1, data.Length - 2);
+                String[] subparts = data.Split(':');
+                int deviceID = Int32.Parse(subparts[0]);
+                int mode = Int32.Parse(subparts[1]);
+                int setpoint = Int32.Parse(subparts[2]);
+                controlData.Add(new SetpointData(deviceID, mode, setpoint));
+            }
+
+            /*
             try
             {
                 String[] msg_parts = msg.Split('|');
@@ -30,12 +44,12 @@ namespace Markhor_Motor_Control
                         {
                             String[] subparts = part.Split(':');
                             int deviceID = Int32.Parse(subparts[0]);
-                            char mode = (subparts[1]).ToCharArray()[0];
+                            int mode = Int32.Parse(subparts[1]);
                             int setpoint = Int32.Parse(subparts[2]);
                             controlData.Add(new SetpointData(deviceID, mode, setpoint));
                         }
                     }
-                    catch { /* malformed message, dont try to add this one */ }
+                    catch { }
                 }
 
             }
@@ -43,6 +57,7 @@ namespace Markhor_Motor_Control
             {
                 return new ArrayList();
             }
+            */
 
             return controlData;
         }

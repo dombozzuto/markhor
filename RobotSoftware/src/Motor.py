@@ -21,26 +21,36 @@ class Motor:
 	'''
 	def update(self, update_info):
 		# message contains info for all motors, need to parse info specific to this motor
-		matchList = re.findall(r'<(\d+):(\d+):(\d+):(\d+)>', update_info, re.M|re.I)
+		matchList = re.findall(r'<(\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)>', update_info, re.M|re.I)
 
 		# check each match to see if this contains data for this motor controller
 		for match in matchList:
 
 			# match has enough data elements to contain valid data
-			if(len(match) >= 4):
+			if(len(match) >= 9):
 
 				# be ready to throw an error if any data is incorrect
 				try:
 					#try to read all the values before assigning anything
 					msg_deviceID = int(match[0])
-					msg_feedback_val = int(match[1])
-					msg_forward_limit = bool(int(match[2]))
-					msg_reverse_limit = bool(int(match[3]))
+					msg_current = int(match[1])
+					msg_temperature = int(match[2])
+					msg_voltageOutput = int(match[3])
+					msg_speed = int(match[4])
+					msg_setpoint = int(match[5])
+					msg_controlMode = int(match[6])
+					msg_forward_limit = bool(int(match[7]))
+					msg_reverse_limit = bool(int(match[8]))
 
 					if(msg_deviceID == self.deviceID):
+						self.current_val = msg_current
+						self.temperature_val = msg_temperature
+						self.voltageOutput = msg_voltageOutput
+						self.speed = msg_speed
+						self.controlMode = msg_controlMode
+						self.actual_val = msg_setpoint
 						self.forward_limit = msg_forward_limit
 						self.reverse_limit = msg_reverse_limit
-						self.actual_val = msg_feedback_val
 
 				except:
 					print "ERROR: Unable to parse one or more of the message components. Device ID: " + str(self.deviceID)
@@ -61,7 +71,7 @@ class Motor:
 			print "ERROR: Invalid mode selected. Device ID: ", + str(self.deviceID)
 
 	def getStateMessage(self):
-		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(self.setpoint_val) + ">"
+		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(int(self.setpoint_val * 1000)) + ">"
 
 
 	

@@ -13,6 +13,6 @@ SerialHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SerialHandler.py
 __init__|E:\My_Documents\MQP\markhor\RobotSoftware\src\__init__.py
 main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py
 regextest|E:\My_Documents\MQP\markhor\RobotSoftware\src\regextest.py
-src.MessageQueue|E:\My_Documents\MQP\markhor\RobotSoftware\src\MessageQueue.py
-src.NetworkHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\NetworkHandler.py
+src.Constants|E:\My_Documents\MQP\markhor\RobotSoftware\src\Constants.py
+src.SensorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SensorHandler.py
 src.main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py

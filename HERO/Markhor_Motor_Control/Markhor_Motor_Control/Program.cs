@@ -65,7 +65,7 @@ namespace Markhor_Motor_Control
             motorStatusData.Add(depthMotorStatusData);
             motorStatusData.Add(winchMotorStatusData);
 
-            uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 9600);
+            uart = new System.IO.Ports.SerialPort(CTRE.HERO.IO.Port1.UART, 115200);
             uart.Open();
             
 
@@ -84,10 +84,11 @@ namespace Markhor_Motor_Control
                 outboundMessageStr = makeOutboundMessage(motorStatusData);
 
                 //send that message back to the main CPU
-                writeUART(makeOutboundMessage(motorSetpointData));
+                writeUART(outboundMessageStr);
 
+                CTRE.Watchdog.Feed();
                 //keep the loop timing consistent //TODO: evaluate if this is necessary
-                System.Threading.Thread.Sleep(10);
+                //System.Threading.Thread.Sleep(10);
             }
         }
 
@@ -142,7 +143,7 @@ namespace Markhor_Motor_Control
             {
                 outboundMessage += ((StatusData)statusData[i]).getOutboundMessage();
             }
-            outboundMessage += "\r\n";
+            outboundMessage += "\n\r";
             return outboundMessage;
         }
 
@@ -151,12 +152,11 @@ namespace Markhor_Motor_Control
             for(int i = 0; i < setpointDataList.Count; i++)
             {
                 SetpointData setpointData = (SetpointData)setpointDataList[i];
-                ((CTRE.TalonSrx)talons[i + 1]).SetControlMode(setpointData.getMode());
-                ((CTRE.TalonSrx)talons[i + 1]).SetSetpoint(setpointData.getConvertedSetpoint());
+                //((CTRE.TalonSrx)talons[i]).SetControlMode(setpointData.getMode());
+                ((CTRE.TalonSrx)talons[i]).Set(setpointData.getConvertedSetpoint());
             }
+            
 
         }
-    }
-
-        
+    }  
 }
