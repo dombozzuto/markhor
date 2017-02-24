@@ -14,5 +14,8 @@ __init__|E:\My_Documents\MQP\markhor\RobotSoftware\src\__init__.py
 main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py
 regextest|E:\My_Documents\MQP\markhor\RobotSoftware\src\regextest.py
 src.Constants|E:\My_Documents\MQP\markhor\RobotSoftware\src\Constants.py
-src.SensorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SensorHandler.py
+src.Motor|E:\My_Documents\MQP\markhor\RobotSoftware\src\Motor.py
+src.MotorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorHandler.py
+src.MotorModes|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorModes.py
+src.SerialHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SerialHandler.py
 src.main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py

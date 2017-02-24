@@ -20,6 +20,17 @@ from time import gmtime, strftime
 def runServer(server):
 	server.serve_forever()
 
+def motorCommunicationThread():
+	while True:
+		inboundMotorMessage = motorSerialHandler.getMessage()
+		motorHandler.updateMotors(inboundMotorMessage)
+		outboundMotorMessage = motorHandler.getMotorStateMessage()
+		motorSerialHandler.sendMessage(outboundMotorMessage)
+	
+#def sensorCommunicationThread():
+	#inboundSensorMessage = sensorSerialHandler.getMessage()
+	#sensorHandler.updateSensors(inboundSensorMessage)
+	#sensorHandler.printSensorValues()
 
 #initialize handlers
 motorHandler = MotorHandler()
@@ -76,6 +87,11 @@ sensorHandler.addSensor(bucketMaterialDepthSense)
 
 # initialize robotState
 robotState = RobotState()
+
+motorCommThread = Thread(target=motorCommunicationThread)
+#sensorCommThread = Thread(target=sensorCommunicationThread)
+motorCommThread.start()
+#sensorCommThread.start()
 
 # final line before entering main loop
 robotEnabled = True
@@ -184,19 +200,19 @@ while robotEnabled:
 	winchMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	
 	leftDriveMotor.setSpeed(1)
-	rightDriveMotor.setSpeed(0.75)
+	rightDriveMotor.setSpeed(-0.75)
 	collectorDepthMotor.setSpeed(1)
-	collectorScoopsMotor.setSpeed(0.75)
+	collectorScoopsMotor.setSpeed(-0.75)
 	winchMotor.setSpeed(1)
 	# +----------------------------------------------+
 	# |          Communication & Updates             |
 	# +----------------------------------------------+
 	# Update the motor values locally, then send new values over
 	# serial
-	inboundMotorMessage = motorSerialHandler.getMessage()
-	motorHandler.updateMotors(inboundMotorMessage)
-	outboundMotorMessage = motorHandler.getMotorStateMessage()
-	motorSerialHandler.sendMessage(outboundMotorMessage)
+# 	inboundMotorMessage = motorSerialHandler.getMessage()
+# 	motorHandler.updateMotors(inboundMotorMessage)
+# 	outboundMotorMessage = motorHandler.getMotorStateMessage()
+# 	motorSerialHandler.sendMessage(outboundMotorMessage)
 
 	# Update the sensor values locally
 	#inboundSensorMessage = sensorSerialHandler.getMessage()

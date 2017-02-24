@@ -1,6 +1,7 @@
 import serial
 import time
 import sys
+from threading import Lock
 class SerialHandler():
 
 	def __init__(self, port):
@@ -30,7 +31,10 @@ class SerialHandler():
 
 	def sendMessage(self, msg):
 		self.ser.write(msg.encode())
-		pass
+# 		lock = Lock()
+# 		lock.acquire() # will block if lock is already held
+# 		print("Wrote", msg)
+# 		lock.release()
 
 	def _readline(self):
 		eol = b'\r'
@@ -47,20 +51,20 @@ class SerialHandler():
 		return bytes(line)
 
 	def getMessage(self):
-		newMsg = ""
-		eol = b'\r'
-		leneol = len(eol)
+		#newMsg = ""
+		#eol = b'\r'
+		#leneol = len(eol)
 		if(self.ser.is_open):
-			#line = self._readline()
-			for i in range(2):
-				c = self.ser.read(1)
-				if c:
-					self.inbound_buffer += c
-					if self.inbound_buffer[-leneol:] == eol:
-						newMsg = str(self.inbound_buffer)
-						print "got a new message"
-						self.inbound_buffer = bytearray()
-		#return str(line)
-		return newMsg
+			line = self._readline()
+			#for i in range(2):
+			#	c = self.ser.read(1)
+			#	if c:
+			#		self.inbound_buffer += c
+			#		if self.inbound_buffer[-leneol:] == eol:
+			#			newMsg = str(self.inbound_buffer)
+			#			self.inbound_buffer = bytearray()
+		return str(line)
+		#return newMsg
+
 if __name__ == "__main__":
 	sh = SerialHandler('COM3')

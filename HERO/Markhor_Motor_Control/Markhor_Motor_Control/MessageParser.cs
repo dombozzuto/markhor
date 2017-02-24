@@ -16,7 +16,7 @@ namespace Markhor_Motor_Control
         public static ArrayList parseMessage(String msg)
         {
             ArrayList controlData = new ArrayList();
-            String pattern = "<([0-9]+):([0-9]+):([0-9]+)>";
+            String pattern = "<([0-9]+):([0-9]+):([-0-9]+)>";
             MatchCollection mc = Regex.Matches(msg, pattern);
 
             foreach(Match m in mc)
