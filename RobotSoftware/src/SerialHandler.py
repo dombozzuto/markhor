@@ -31,10 +31,6 @@ class SerialHandler():
 
 	def sendMessage(self, msg):
 		self.ser.write(msg.encode())
-# 		lock = Lock()
-# 		lock.acquire() # will block if lock is already held
-# 		print("Wrote", msg)
-# 		lock.release()
 
 	def _readline(self):
 		eol = b'\r'

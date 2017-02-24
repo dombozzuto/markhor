@@ -1,6 +1,7 @@
 import time
 import SocketServer
 import threading
+import pygame
 from threading import Thread
 
 import Constants as CONSTANTS
@@ -14,6 +15,7 @@ from RobotState import RobotState
 from SerialHandler import SerialHandler
 from NetworkHandler import NetworkHandler
 from MessageQueue import MessageQueue
+from JoystickReader import JoystickReader
 
 from time import gmtime, strftime
 
@@ -27,30 +29,37 @@ def motorCommunicationThread():
 		outboundMotorMessage = motorHandler.getMotorStateMessage()
 		motorSerialHandler.sendMessage(outboundMotorMessage)
 	
-#def sensorCommunicationThread():
-	#inboundSensorMessage = sensorSerialHandler.getMessage()
-	#sensorHandler.updateSensors(inboundSensorMessage)
-	#sensorHandler.printSensorValues()
+def sensorCommunicationThread():
+	while True:
+		inboundSensorMessage = sensorSerialHandler.getMessage()
+		sensorHandler.updateSensors(inboundSensorMessage)
+		sensorHandler.printSensorValues()
 
 #initialize handlers
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
-motorSerialHandler = SerialHandler('COM8')
-#sensorSerialHandler = SerialHandler('COM3')
+if CONSTANTS.USING_MOTOR_BOARD:
+	motorSerialHandler = SerialHandler('COM8')
+	motorSerialHandler.initSerial()
+	
+if CONSTANTS.USING_SENSOR_BOARD:
+	sensorSerialHandler = SerialHandler('COM3')
+	sensorSerialHandler.initSerial()
 
 #initialize network comms & server thread
-inboundMessageQueue = MessageQueue()
-outboundMessageQueue = MessageQueue()
+if CONSTANTS.USING_NETWORK_COMM:
+	inboundMessageQueue = MessageQueue()
+	outboundMessageQueue = MessageQueue()
 
-networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
+	networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
 
-#server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
-#serverThread = Thread(target=runServer, args=(server,))
-#serverThread.start()
+	server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
+	serverThread = Thread(target=runServer, args=(server,))
+	serverThread.start()
 
-#sensorSerialHandler.initSerial()
-motorSerialHandler.initSerial()
+
+
 
 # initialize motors
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.K_PERCENT_VBUS)
@@ -88,10 +97,21 @@ sensorHandler.addSensor(bucketMaterialDepthSense)
 # initialize robotState
 robotState = RobotState()
 
-motorCommThread = Thread(target=motorCommunicationThread)
-#sensorCommThread = Thread(target=sensorCommunicationThread)
-motorCommThread.start()
-#sensorCommThread.start()
+# initialize joystick, if using joystick
+if CONSTANTS.USING_JOYSTICK:
+	pygame.init()
+	pygame.joystick.init()
+	joystick1 = pygame.joystick.Joystick(0)
+	joystick1.init()
+	jReader = JoystickReader(joystick1)
+	
+if CONSTANTS.USING_MOTOR_BOARD:
+	motorCommThread = Thread(target=motorCommunicationThread)
+	motorCommThread.start()
+
+if CONSTANTS.USING_SENSOR_BOARD:
+	sensorCommThread = Thread(target=sensorCommunicationThread)
+	sensorCommThread.start()
 
 # final line before entering main loop
 robotEnabled = True
@@ -199,25 +219,28 @@ while robotEnabled:
 	collectorScoopsMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	winchMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	
-	leftDriveMotor.setSpeed(1)
-	rightDriveMotor.setSpeed(-0.75)
-	collectorDepthMotor.setSpeed(1)
-	collectorScoopsMotor.setSpeed(-0.75)
-	winchMotor.setSpeed(1)
+	if CONSTANTS.USING_JOYSTICK:
+		pygame.event.get()
+		jReader.updateValues()
+		leftDriveMotor.setSpeed(-jReader.axis_y1)
+		rightDriveMotor.setSpeed(jReader.axis_y2)
+		collectorDepthMotor.setSpeed(0)
+		collectorScoopsMotor.setSpeed(0)
+		winchMotor.setSpeed(0)
+	
+	else:
+		leftDriveMotor.setSpeed(0)
+		rightDriveMotor.setSpeed(0)
+		collectorDepthMotor.setSpeed(0)
+		collectorScoopsMotor.setSpeed(0)
+		winchMotor.setSpeed(0)
 	# +----------------------------------------------+
 	# |          Communication & Updates             |
 	# +----------------------------------------------+
 	# Update the motor values locally, then send new values over
-	# serial
-# 	inboundMotorMessage = motorSerialHandler.getMessage()
-# 	motorHandler.updateMotors(inboundMotorMessage)
-# 	outboundMotorMessage = motorHandler.getMotorStateMessage()
-# 	motorSerialHandler.sendMessage(outboundMotorMessage)
+	# serial --- handled via threading
 
-	# Update the sensor values locally
-	#inboundSensorMessage = sensorSerialHandler.getMessage()
-	#sensorHandler.updateSensors(inboundSensorMessage)
-	#sensorHandler.printSensorValues()
+
 
 	#if(not outboundMessageQueue.isEmpty()):
 	#	outboundMessageQueue.makeEmpty()
