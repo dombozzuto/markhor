@@ -1,6 +1,8 @@
 import serial
 import time
 import sys
+
+from Constants import LOGGER
 from threading import Lock
 class SerialHandler():
 
@@ -50,7 +52,7 @@ class SerialHandler():
 		#newMsg = ""
 		#eol = b'\r'
 		#leneol = len(eol)
-		if(self.ser.is_open):
+		if(self.ser.isOpen()):
 			line = self._readline()
 			#for i in range(2):
 			#	c = self.ser.read(1)
@@ -59,6 +61,8 @@ class SerialHandler():
 			#		if self.inbound_buffer[-leneol:] == eol:
 			#			newMsg = str(self.inbound_buffer)
 			#			self.inbound_buffer = bytearray()
+		LOGGER.Debug("Received " + str(line).strip('\n'))
+		sys.stdout.flush()
 		return str(line)
 		#return newMsg
 

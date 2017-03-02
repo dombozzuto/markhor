@@ -1,5 +1,6 @@
 MODULES_MANAGER_V2
 Constants|E:\My_Documents\MQP\markhor\RobotSoftware\src\Constants.py
+JoystickReader|E:\My_Documents\MQP\markhor\RobotSoftware\src\JoystickReader.py
 MessageQueue|E:\My_Documents\MQP\markhor\RobotSoftware\src\MessageQueue.py
 Motor|E:\My_Documents\MQP\markhor\RobotSoftware\src\Motor.py
 MotorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorHandler.py
@@ -15,8 +16,18 @@ main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py
 regextest|E:\My_Documents\MQP\markhor\RobotSoftware\src\regextest.py
 src.Constants|E:\My_Documents\MQP\markhor\RobotSoftware\src\Constants.py
 src.JoystickReader|E:\My_Documents\MQP\markhor\RobotSoftware\src\JoystickReader.py
+src.Logger|E:\My_Documents\MQP\markhor\RobotSoftware\src\Logger.py
+src.MessageQueue|E:\My_Documents\MQP\markhor\RobotSoftware\src\MessageQueue.py
 src.Motor|E:\My_Documents\MQP\markhor\RobotSoftware\src\Motor.py
 src.MotorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorHandler.py
 src.MotorModes|E:\My_Documents\MQP\markhor\RobotSoftware\src\MotorModes.py
+src.NetworkHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\NetworkHandler.py
+src.RobotState|E:\My_Documents\MQP\markhor\RobotSoftware\src\RobotState.py
+src.Sensor|E:\My_Documents\MQP\markhor\RobotSoftware\src\Sensor.py
+src.SensorHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SensorHandler.py
+src.SensorTest|E:\My_Documents\MQP\markhor\RobotSoftware\src\SensorTest.py
 src.SerialHandler|E:\My_Documents\MQP\markhor\RobotSoftware\src\SerialHandler.py
+src.__init__|E:\My_Documents\MQP\markhor\RobotSoftware\src\__init__.py
 src.main|E:\My_Documents\MQP\markhor\RobotSoftware\src\main.py
+src.regextest|E:\My_Documents\MQP\markhor\RobotSoftware\src\regextest.py
+src.test|E:\My_Documents\MQP\markhor\RobotSoftware\src\test.py

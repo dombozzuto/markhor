@@ -11,11 +11,13 @@ class SensorHandler:
 			sensor.update(update_msg)
 
 	def printSensorValues(self):
+		print self.getSensorValues()
+	
+	def getSensorValues(self):
 		sensorMsg = ""
 		for sensor in self.sensors:
-			sensorMsg += str(sensor.getValue()) + "|";
-		print sensorMsg
-	
+			sensorMsg += str(sensor.getValue()) + '|';
+		return sensorMsg
 
 
 
