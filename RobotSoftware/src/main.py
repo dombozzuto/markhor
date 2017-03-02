@@ -35,19 +35,26 @@ def sensorCommunicationThread():
 	while True:
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
-		sensorHandler.printSensorValues()
 
 #initialize handlers
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
 if CONSTANTS.USING_MOTOR_BOARD:
+	LOGGER.Debug("Initializing Motor Board...")
 	motorSerialHandler = SerialHandler('COM8')
 	motorSerialHandler.initSerial()
-	
+	LOGGER.DEBUG("Motor Board Initialization Complete")
+else:
+	LOGGER.Low("Motor Board is not enabled.")
+
 if CONSTANTS.USING_SENSOR_BOARD:
-	sensorSerialHandler = SerialHandler('COM3')
+	LOGGER.Debug("Initializing Sensor Board...")
+	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT)
 	sensorSerialHandler.initSerial()
+	LOGGER.Debug("Sensor Board initialization complete")
+else:
+	LOGGER.Low("Sensor Borad is not enabled.")
 
 #initialize network comms & server thread
 if CONSTANTS.USING_NETWORK_COMM:
@@ -64,6 +71,7 @@ if CONSTANTS.USING_NETWORK_COMM:
 
 
 # initialize motors
+LOGGER.Debug("Creating motor objects...")
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.K_PERCENT_VBUS)
 rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.K_PERCENT_VBUS)
 collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.K_PERCENT_VBUS)
@@ -71,6 +79,7 @@ collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_
 winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.K_PERCENT_VBUS)
 
 # initialize motor handler and add motors
+LOGGER.Debug("Linking motors to motor handler...")
 motorHandler.addMotor(leftDriveMotor)
 motorHandler.addMotor(rightDriveMotor)
 motorHandler.addMotor(collectorDepthMotor)
@@ -78,16 +87,17 @@ motorHandler.addMotor(collectorScoopsMotor)
 motorHandler.addMotor(winchMotor)
 
 # initialize sensors
+LOGGER.Debug("Creating sensor objects...")
 leftDriveCurrentSense = Sensor("LeftDriveCurrentSense")
 rightDriveCurrentSense = Sensor("RightDriveCurrentSense")
 collectorDepthCurrentSense = Sensor("CollectorDepthCurrentSense")
 collectorScoopsCurrentSense = Sensor("CollectorScoopsCurrentSense")
 winchMotorCurrentSense = Sensor("WinchMotorCurrentSense")
-
 scoopReedSwitch = Sensor("ScoopReedSwitch")
 bucketMaterialDepthSense = Sensor("BucketMaterialDepthSense")
 
 # initialize sensor handler and add sensors
+LOGGER.Debug("Linking sensors to sensor handler...")
 sensorHandler.addSensor(leftDriveCurrentSense)
 sensorHandler.addSensor(rightDriveCurrentSense)
 sensorHandler.addSensor(collectorDepthCurrentSense)
@@ -97,32 +107,40 @@ sensorHandler.addSensor(scoopReedSwitch)
 sensorHandler.addSensor(bucketMaterialDepthSense)
 
 # initialize robotState
+LOGGER.Debug("Initializing robot state...")
 robotState = RobotState()
 
 # initialize joystick, if using joystick
 if CONSTANTS.USING_JOYSTICK:
+	LOGGER.Debug("Initializing joystick...")
 	pygame.init()
 	pygame.joystick.init()
 	joystick1 = pygame.joystick.Joystick(0)
 	joystick1.init()
 	jReader = JoystickReader(joystick1)
+	LOGGER.Debug("Joystick created.")
 	
 if CONSTANTS.USING_MOTOR_BOARD:
 	motorCommThread = Thread(target=motorCommunicationThread)
+	motorCommThread.daemon = True
 	motorCommThread.start()
+	LOGGER.Debug("Motor communication thread started.")
 
 if CONSTANTS.USING_SENSOR_BOARD:
 	sensorCommThread = Thread(target=sensorCommunicationThread)
+	sensorCommThread.daemon = True
 	sensorCommThread.start()
+	LOGGER.Debug("Sensor communication thread started.")
 
 # final line before entering main loop
 robotEnabled = True
 time.sleep(0.5)
 
+LOGGER.Debug("Initialization successful. Entering main execution loop")
 while robotEnabled:
 
 	loopStartTime = time.time()
-	print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000))
+	#print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000))
 
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
@@ -243,12 +261,9 @@ while robotEnabled:
 	# serial --- handled via threading
 
 
-
 	#if(not outboundMessageQueue.isEmpty()):
 	#	outboundMessageQueue.makeEmpty()
 	#outboundMessageQueue.add("Here is a response")
-	
-
 
 	#sleep to maintain a more constant thread time (specified in Constants.py)
 	loopEndTime = time.time()

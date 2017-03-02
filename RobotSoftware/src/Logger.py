@@ -1,4 +1,5 @@
 import time
+import sys
 
 class Logger:
 
@@ -6,23 +7,23 @@ class Logger:
 	self.setLogLevel(level)
 
 
-    def logCritical(self, msg):
+    def Critical(self, msg):
 	if(self.loggerLevel >= 1):
 	    self.log(msg)
 
-    def logSevere(self, msg):
+    def Severe(self, msg):
 	if(self.loggerLevel >= 2):
 	    self.log(msg)
 
-    def logModerate(self, msg):
+    def Moderate(self, msg):
 	if(self.loggerLevel >= 3):
 	    self.log(msg)
 
-    def logLow(self, msg):
+    def Low(self, msg):
 	if(self.loggerLevel >= 4):
 	    self.log(msg)
 
-    def logDebug(self, msg):
+    def Debug(self, msg):
 	if(self.loggerLevel >= 5):
 	    self.log(msg)
 
@@ -31,16 +32,17 @@ class Logger:
 
     def log(self, msg):
 	print time.strftime("%H:%M:%S", time.gmtime()) + "---" + msg
+	sys.stdout.flush()
 
 if __name__ == "__main__":
     logger = Logger(5)
 
-    logger.logDebug("Hello World")
-    logger.logLow("Test log should display")
+    logger.Debug("Hello World")
+    logger.Low("Test log should display")
 
     logger.setLogLevel(3)
     time.sleep(2)
-    logger.logDebug("This shouldnt appear")
+    logger.Debug("This shouldnt appear")
 
-    logger.logModerate("This should appear")
+    logger.Moderate("This should appear")
     
