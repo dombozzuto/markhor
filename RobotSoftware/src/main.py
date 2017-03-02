@@ -270,6 +270,4 @@ while robotEnabled:
 	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime
 	if(sleepTime > 0):
 		time.sleep(sleepTime)
-		
-	print ""
 

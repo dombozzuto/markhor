@@ -62,7 +62,6 @@ class SerialHandler():
 			#			newMsg = str(self.inbound_buffer)
 			#			self.inbound_buffer = bytearray()
 		LOGGER.Debug("Received " + str(line).strip('\n'))
-		sys.stdout.flush()
 		return str(line)
 		#return newMsg
 
