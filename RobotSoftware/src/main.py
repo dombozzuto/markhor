@@ -44,7 +44,7 @@ if CONSTANTS.USING_MOTOR_BOARD:
 	LOGGER.Debug("Initializing Motor Board...")
 	motorSerialHandler = SerialHandler('COM8')
 	motorSerialHandler.initSerial()
-	LOGGER.DEBUG("Motor Board Initialization Complete")
+	LOGGER.Debug("Motor Board Initialization Complete")
 else:
 	LOGGER.Low("Motor Board is not enabled.")
 
