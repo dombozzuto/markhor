@@ -21,3 +21,5 @@ LOOP_DELAY_TIME = 0.010
 
 HOST = "localhost"
 PORT = 9999
+
+ON_LINUX = True
