@@ -1,5 +1,4 @@
 import time
-import can
 
 class MotorHandler:
 

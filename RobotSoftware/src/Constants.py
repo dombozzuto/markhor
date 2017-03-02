@@ -1,3 +1,5 @@
+import Logger
+
 USING_MOTOR_BOARD = True
 USING_SENSOR_BOARD = False
 USING_NETWORK_COMM = False
@@ -23,3 +25,11 @@ HOST = "localhost"
 PORT = 9999
 
 ON_LINUX = True
+
+LOG_CRITICAL = 1
+LOG_SEVERE = 2
+LOG_MODERATE = 3
+LOG_LOW = 4
+LOG_DEBUG = 5
+
+LOGGER = Logger.Logger(LOG_DEBUG)

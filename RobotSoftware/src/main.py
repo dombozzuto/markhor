@@ -7,6 +7,8 @@ from threading import Thread
 import Constants as CONSTANTS
 import MotorModes as MOTOR_MODES
 
+from Constants import LOGGER
+
 from Motor import Motor
 from MotorHandler import MotorHandler
 from Sensor import Sensor
