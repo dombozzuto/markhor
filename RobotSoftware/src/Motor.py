@@ -10,6 +10,7 @@ class Motor:
 		self.setpoint_val = 0
 		self.actual_val = 0
 		self.mode = mode
+		self.current_val = 0
 		self.forward_limit = False
 		self.reverse_limit = False
 

@@ -120,7 +120,7 @@ time.sleep(0.5)
 while robotEnabled:
 
 	loopStartTime = time.time()
-	print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000))
+	print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000)) + ": ",
 
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
@@ -234,6 +234,8 @@ while robotEnabled:
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
+		
+	print leftDriveMotor.current_val
 	# +----------------------------------------------+
 	# |          Communication & Updates             |
 	# +----------------------------------------------+
@@ -254,4 +256,6 @@ while robotEnabled:
 	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime
 	if(sleepTime > 0):
 		time.sleep(sleepTime)
+		
+	print ""
 
