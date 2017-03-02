@@ -5,6 +5,7 @@ import pygame
 from threading import Thread
 
 import Constants as CONSTANTS
+from Constants import LOGGER
 import MotorModes as MOTOR_MODES
 
 from Motor import Motor
@@ -18,6 +19,8 @@ from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
 
 from time import gmtime, strftime
+
+LOGGER.Low("Beginning Program Execution")
 
 def runServer(server):
 	server.serve_forever()
@@ -33,18 +36,20 @@ def sensorCommunicationThread():
 	while True:
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
-		sensorHandler.printSensorValues()
 
 #initialize handlers
+LOGGER.Debug("Initializing handlers...")
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
 if CONSTANTS.USING_MOTOR_BOARD:
-	motorSerialHandler = SerialHandler('COM8')
+	LOGGER.Debug("Initializing motor serial handler...")
+	motorSerialHandler = SerialHandler('/dev/ttyACM0')
 	motorSerialHandler.initSerial()
 	
 if CONSTANTS.USING_SENSOR_BOARD:
-	sensorSerialHandler = SerialHandler('COM3')
+	LOGGER.Debug("Initializing sensor serial handler...")
+	sensorSerialHandler = SerialHandler('/dev/arduino')
 	sensorSerialHandler.initSerial()
 
 #initialize network comms & server thread
@@ -62,6 +67,7 @@ if CONSTANTS.USING_NETWORK_COMM:
 
 
 # initialize motors
+LOGGER.Debug("Initializing motor objects...")
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.K_PERCENT_VBUS)
 rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.K_PERCENT_VBUS)
 collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.K_PERCENT_VBUS)
@@ -69,6 +75,7 @@ collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_
 winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.K_PERCENT_VBUS)
 
 # initialize motor handler and add motors
+LOGGER.Debug("Linking motors to motor handler...")
 motorHandler.addMotor(leftDriveMotor)
 motorHandler.addMotor(rightDriveMotor)
 motorHandler.addMotor(collectorDepthMotor)
@@ -76,16 +83,17 @@ motorHandler.addMotor(collectorScoopsMotor)
 motorHandler.addMotor(winchMotor)
 
 # initialize sensors
+LOGGER.Debug("Initializing sensor objects...")
 leftDriveCurrentSense = Sensor("LeftDriveCurrentSense")
 rightDriveCurrentSense = Sensor("RightDriveCurrentSense")
 collectorDepthCurrentSense = Sensor("CollectorDepthCurrentSense")
 collectorScoopsCurrentSense = Sensor("CollectorScoopsCurrentSense")
 winchMotorCurrentSense = Sensor("WinchMotorCurrentSense")
-
 scoopReedSwitch = Sensor("ScoopReedSwitch")
 bucketMaterialDepthSense = Sensor("BucketMaterialDepthSense")
 
 # initialize sensor handler and add sensors
+LOGGER.Debug("Linking sensor objects to sensor handler...")
 sensorHandler.addSensor(leftDriveCurrentSense)
 sensorHandler.addSensor(rightDriveCurrentSense)
 sensorHandler.addSensor(collectorDepthCurrentSense)
@@ -95,10 +103,12 @@ sensorHandler.addSensor(scoopReedSwitch)
 sensorHandler.addSensor(bucketMaterialDepthSense)
 
 # initialize robotState
+LOGGER.Debug("Initializing robot state...")
 robotState = RobotState()
 
 # initialize joystick, if using joystick
 if CONSTANTS.USING_JOYSTICK:
+	LOGGER.Debug("Initializing joystick...")
 	pygame.init()
 	pygame.joystick.init()
 	joystick1 = pygame.joystick.Joystick(0)
@@ -106,21 +116,26 @@ if CONSTANTS.USING_JOYSTICK:
 	jReader = JoystickReader(joystick1)
 	
 if CONSTANTS.USING_MOTOR_BOARD:
+	LOGGER.Debug("Initializing motor board thread...")
 	motorCommThread = Thread(target=motorCommunicationThread)
+	motorCommThread.daemon = True
 	motorCommThread.start()
 
 if CONSTANTS.USING_SENSOR_BOARD:
+	LOGGER.Debug("Initializing sensor board thread...")
 	sensorCommThread = Thread(target=sensorCommunicationThread)
+	sensorCommThread.daemon = True
 	sensorCommThread.start()
 
 # final line before entering main loop
 robotEnabled = True
 time.sleep(0.5)
 
+LOGGER.Debug("Initialization complete, entering main loop...")
 while robotEnabled:
 
 	loopStartTime = time.time()
-	print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000)) + ": ",
+	#print strftime("%H:%M:%S.", gmtime()) + str(int((time.time()*1000) % 1000)) + ": ",
 
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
@@ -235,7 +250,6 @@ while robotEnabled:
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 		
-	print leftDriveMotor.current_val
 	# +----------------------------------------------+
 	# |          Communication & Updates             |
 	# +----------------------------------------------+
