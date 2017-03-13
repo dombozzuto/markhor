@@ -19,7 +19,7 @@ class NetworkClient:
             s.connect((self.ip_addr, self.port))
             s.send(msg_str)
             data = s.recv(self.buffer_size)
-            self.queue.add(NetworkMessage(str(data)))
+            self.inboundMessageQueue.add(NetworkMessage(str(data)))
             print "Received: " + str(data)
             s.close()
         except:

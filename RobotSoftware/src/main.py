@@ -21,7 +21,7 @@ from NetworkClient import NetworkClient
 import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
-from main import inboundMessageQueue
+#from main import inboundMessageQueue
 
 LOGGER.Low("Beginning Program Execution")
 
