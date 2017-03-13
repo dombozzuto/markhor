@@ -11,7 +11,7 @@ class NetworkMessage():
         
     def parseMessage(self, msg_str):
         try:
-            msg_str = msg_str.strip("<>\n")
+            msg_str = msg_str.strip("\< \>\n\r")
             msg_parts1 = msg_str.split("|")
             self.type = RobotState.STATES[int(msg_parts1[0])]
             
@@ -23,6 +23,7 @@ class NetworkMessage():
                 
         #Some error occurred in parsing the message - probably malformed.
         except:
+	    print "error on message:" + msg_str
             pass
         
     def printMessage(self):
@@ -32,7 +33,7 @@ class NetworkMessage():
             print "Data " + str(i) + ": " + str(self.messageData[i])
         
 if __name__ == "__main__":
-    m1 = NetworkMessage("<1|0:5.00:-0.75>")
+    m1 = NetworkMessage("<1|0:5.0:0.75>\n\n")
     m1.printMessage()
     
         

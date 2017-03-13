@@ -18,6 +18,7 @@ from NetworkHandler import NetworkHandler
 from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
 from NetworkClient import NetworkClient
+from NetworkMessage import NetworkMessage
 import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
@@ -78,7 +79,8 @@ if CONSTANTS.USING_NETWORK_COMM:
 	#serverThread.start()
 
 
-
+# setup some variables that will be used with each iteration of the loop
+currentMessage = NetworkMessage("")
 
 # initialize motors
 LOGGER.Debug("Initializing motor objects...")
@@ -154,6 +156,17 @@ while robotEnabled:
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
 
+	# +----------------------------------------------+
+	# |                Communication                 |
+	# +----------------------------------------------+
+
+	if CONSTANTS.USING_NETWORK_COMM:
+		if(outboundMessageQueue.isEmpty()):
+			networkClient.send("Hello World\n")
+		else:
+			networkClient.send(outboundMessageQueue.getNext())
+		#BEEPCODES.heartbeat()
+
 	
 	# +----------------------------------------------+
 	# |              Current State Logic             |
@@ -191,10 +204,11 @@ while robotEnabled:
 		
 		if(currentMessage.type == "MSG_STOP"):
 			ceaseAllMotorFunctions()
-			outboundMessageQueue.add("Finished MSG_STOP")
+			outboundMessageQueue.add("Finished\n")
 		
 		elif(currentMessage.type == "MSG_DRIVE_TIME"):
 			#action is still running
+			currentMessage.printMessage()
 			if(time.time() < stateStartTime + currentMessage.messageData[0]):
 				driveSpeed = currentMessage.messageData[1]
 				leftDriveMotor.setSpeed(driveSpeed)
@@ -204,7 +218,7 @@ while robotEnabled:
 			#next action
 			else:
 				ceaseAllMotorFunctions()
-				outboundMessageQueue.add("Finished MSG_DRIVE_TIME")
+				outboundMessageQueue.add("Finished\n")
 				
 		elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
 			if(leftDriveMotor.getDistance() > startingDistance + currentMessage.messageData[0]):
@@ -214,7 +228,7 @@ while robotEnabled:
 				
 			else:
 				ceaseAllMotorFunctions()
-				outboundMessageQueue.add("Finished MSG_DRIVE_DISTANCE")
+				outboundMessageQueue.add("Finished\n")
 			
 		
 	
@@ -240,16 +254,7 @@ while robotEnabled:
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 		
-	# +----------------------------------------------+
-	# |                Communication                 |
-	# +----------------------------------------------+
 
-	if CONSTANTS.USING_NETWORK_COMM:
-		if(outboundMessageQueue.isEmpty()):
-			networkClient.send("Hello World")
-		else:
-			networkClient.send(outboundMessageQueue.getNext())
-		#BEEPCODES.heartbeat()
 
 
 	

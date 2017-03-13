@@ -10,7 +10,7 @@ public class MsgDriveDistance extends AbsMessage
 		super();
 		setType(MessageType.MSG_DRIVE_DISTANCE);
 		setSize(2);
-		setInfo("Driving for " + distance + "ms at speed:" + speed + "\n");
+		setInfo("Driving for " + distance + "m at speed:" + speed + "\n");
 		
 		setDataByIndex(0, distance);
 		setDataByIndex(1, speed);
