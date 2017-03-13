@@ -10,7 +10,7 @@ public class FunctionalityTest
 		final int port = 11000;
 		
 		MessageQueue mq = new MessageQueue();
-		NetworkServer server = new NetworkServer(port);
+		NetworkServer server = new NetworkServer(port, mq);
 
 		mq.add(new MsgDriveTime(5.0, 0.75));
 		mq.add(new MsgDriveTime(10.0, 1.00));

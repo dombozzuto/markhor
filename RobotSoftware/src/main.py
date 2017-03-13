@@ -39,6 +39,13 @@ def sensorCommunicationThread():
 	while True:
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
+		
+def ceaseAllMotorFunctions():
+	leftDriveMotor.setSpeed(0)
+	rightDriveMotor.setSpeed(0)
+	collectorDepthMotor.setSpeed(0)
+	collectorScoopsMotor.setSpeed(0)
+	winchMotor.setSpeed(0)
 
 #initialize handlers
 LOGGER.Debug("Initializing handlers...")
@@ -63,6 +70,7 @@ if CONSTANTS.USING_NETWORK_COMM:
 	outboundMessageQueue = MessageQueue()
 	lastReceivedMessageNumber = -1
 	currentReceivedMessageNumber = -1
+	stateStartTime = -1
 
 	#networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
 	#server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
@@ -161,22 +169,54 @@ while robotEnabled:
 		#new message has arrived, process
 		if(lastReceivedMessageNumber != currentReceivedMessageNumber):
 			
+			stateStartTime = time.time()
 			robotState.setState(currentMessage.type)
 			
 			if(currentMessage.type == "MSG_STOP"):
 				LOGGER.Debug("Received a MSG_STOP")
 				
-			
 			elif(currentMessage.type == "MSG_DRIVE_TIME"):
 				LOGGER.Debug("Received a MSG_DRIVE_TIME")
+				
 			
 			elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
 				LOGGER.Debug("Received a MSG_DRIVE_DISTANCE")
+				leftDriveMotor.setMode(MOTOR_MODES.K_SPEED)
+				rightDriveMotor.setMode(MOTOR_MODES.K_SPEED)
+				startingDistance = 0 #TODO get distance from encoders
 			
 			else:
 				LOGGER.Low("Received an invalid message.")
 				
-	
+		
+		if(currentMessage.type == "MSG_STOP"):
+			ceaseAllMotorFunctions()
+			outboundMessageQueue.add("Finished MSG_STOP")
+		
+		elif(currentMessage.type == "MSG_DRIVE_TIME"):
+			#action is still running
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				driveSpeed = currentMessage.messageData[1]
+				leftDriveMotor.setSpeed(driveSpeed)
+				rightDriveMotor.setSpeed(-driveSpeed)
+			
+			#action has elapsed allotted time, stop motors while waiting for
+			#next action
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished MSG_DRIVE_TIME")
+				
+		elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
+			if(leftDriveMotor.getDistance() > startingDistance + currentMessage.messageData[0]):
+				driveSpeed = currentMessage.messageData[1]
+				leftDriveMotor.setSpeed(driveSpeed)
+				rightDriveMotor.setSpeed(-driveSpeed)
+				
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished MSG_DRIVE_DISTANCE")
+			
+		
 	
 	leftDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	rightDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
@@ -205,7 +245,10 @@ while robotEnabled:
 	# +----------------------------------------------+
 
 	if CONSTANTS.USING_NETWORK_COMM:
-		networkClient.send("Hello World")
+		if(outboundMessageQueue.isEmpty()):
+			networkClient.send("Hello World")
+		else:
+			networkClient.send(outboundMessageQueue.getNext())
 		#BEEPCODES.heartbeat()
 
 
@@ -218,4 +261,6 @@ while robotEnabled:
 	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime
 	if(sleepTime > 0):
 		time.sleep(sleepTime)
+
+
 

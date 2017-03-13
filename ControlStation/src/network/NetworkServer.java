@@ -3,15 +3,19 @@ package network;
 import java.io.*;
 import java.net.*;
 
+import common.MessageQueue;
+
 public class NetworkServer extends Thread
 {
 	private ServerSocket serverSocket;
+	private MessageQueue queue;
 	private int port;
 	private boolean running = false;
 	
-	public NetworkServer(int port)
+	public NetworkServer(int port, MessageQueue queue)
 	{
 		this.port = port;
+		this.queue = queue;
 	}
 	
 	public void startServer()
@@ -42,7 +46,7 @@ public class NetworkServer extends Thread
 			try
 			{
 				Socket socket = serverSocket.accept();
-				RequestHandler requestHandler = new RequestHandler(socket);
+				RequestHandler requestHandler = new RequestHandler(socket, queue);
 				requestHandler.start();
 			}
 			catch(IOException e)

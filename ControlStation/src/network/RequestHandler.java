@@ -3,12 +3,17 @@ package network;
 import java.io.*;
 import java.net.Socket;
 
+import common.MessageQueue;
+
 class RequestHandler extends Thread
 {
     private Socket socket;
-    RequestHandler( Socket socket )
+    private MessageQueue queue;
+    
+    RequestHandler( Socket socket , MessageQueue queue)
     {
         this.socket = socket;
+        this.queue = queue;
     }
 
     @Override
@@ -19,27 +24,37 @@ class RequestHandler extends Thread
             // Get input and output streams
             BufferedReader in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
             PrintWriter out = new PrintWriter( socket.getOutputStream() );
+            
+           BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+           String inboundMessageStr = inFromClient.readLine();
+           
+           if(inboundMessageStr.replace("\n\t ", "").equals("Finished"))
+           {
+	           	if(!queue.isEmpty())
+	       		{
+	           		queue.pop();
+	       		}
+           }
 
-            // Write out our header to the client
-            //out.println( "Echo Server 1.0" );
-            //out.flush();
-
-            // Echo lines back to the client until the client closes the connection or we receive an empty line
-            //String line = in.readLine();
-            //while( line != null && line.length() > 0 )
-            //{
-            //    out.println( "Echo: " + line );
-            //    out.flush();
-            //    line = in.readLine();
-            //}
-            out.println("<0|0>");
-            out.flush();
+            System.out.println("Received: " + inboundMessageStr);
+            
+            if(!queue.isEmpty())
+            {
+            	queue.peek();
+            	out.println(queue.peek().getMessageString());
+            	System.out.println("Sent: " + queue.peek().getMessageString());
+                out.flush();
+            }
+            else
+            {
+            	out.println("<0|-1>");
+            	out.flush();
+            }
+            
             // Close our connection
             in.close();
             out.close();
             socket.close();
-
-            System.out.println( "Connection closed" );
         }
         catch( Exception e )
         {
