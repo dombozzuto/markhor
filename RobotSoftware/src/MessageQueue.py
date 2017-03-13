@@ -1,3 +1,5 @@
+import NetworkMessage
+
 class MessageQueue():
     
     def __init__(self):
@@ -27,3 +29,19 @@ class MessageQueue():
         else:
             msg = self.queue.pop(0)
             return msg
+
+
+if __name__ == "__main__":
+    m1 = NetworkMessage.NetworkMessage("<1|0:5.0:-0.75>")
+    m2 = NetworkMessage.NetworkMessage("<0|1>")
+    queue = MessageQueue()
+    print "Queue size: " + str(queue.getSize())
+    queue.add(m1)
+    queue.add(m2)
+    print "Queue size: " + str(queue.getSize())
+    queue.peek().printMessage()
+    queue.getNext()
+    print "Queue size: " + str(queue.getSize())
+    queue.peek().printMessage()
+    queue.getNext()
+    print "Queue size: " + str(queue.getSize())

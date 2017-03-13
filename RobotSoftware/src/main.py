@@ -17,9 +17,11 @@ from SerialHandler import SerialHandler
 from NetworkHandler import NetworkHandler
 from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
+from NetworkClient import NetworkClient
 import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
+from main import inboundMessageQueue
 
 LOGGER.Low("Beginning Program Execution")
 
@@ -55,14 +57,17 @@ if CONSTANTS.USING_SENSOR_BOARD:
 
 #initialize network comms & server thread
 if CONSTANTS.USING_NETWORK_COMM:
+	networkClient = NetworkClient(CONSTANTS.CONTROL_STATION_IP, CONSTANTS.CONTROL_STATION_PORT)
 	inboundMessageQueue = MessageQueue()
+	networkClient.setInboundMessageQueue(inboundMessageQueue)
 	outboundMessageQueue = MessageQueue()
+	lastReceivedMessageNumber = -1
+	currentReceivedMessageNumber = -1
 
-	networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
-
-	server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
-	serverThread = Thread(target=runServer, args=(server,))
-	serverThread.start()
+	#networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
+	#server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
+	#serverThread = Thread(target=runServer, args=(server,))
+	#serverThread.start()
 
 
 
@@ -141,93 +146,37 @@ while robotEnabled:
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
 
-	'''
+	
 	# +----------------------------------------------+
 	# |              Current State Logic             |
 	# +----------------------------------------------+
 	# State machine handles the robot's current states
-	
-	if(currentState == "OFF"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "ROTATE_TO_MARKER"):
-		pass
-		#rotate motors according to camera
-
-	elif(currentState == "DRIVE_TO_DIG_AREA"):
-		leftDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
-		rightDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "STOP_AT_DIG_AREA"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "RUN_SCOOPS"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(CONSTANTS.SCOOP_SPEED)
-		collectorDepthMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "INCREMENT_DEPTH"):
-		collectorDepthMotor.setSpeed(CONSTANTS.DEPTH_SPEED)
-
-	elif(currentState == "DECREMENT_DEPTH"):
-		collectorDepthMotor.setSpeed(-CONSTANTS.DEPTH_SPEED)
-
-	elif(currentState == "STOP_SCOOPS"):
-		collectorScoopsMotor.setSpeed(0)
-
-	elif(currentState == "DRIVE_TO_COLLECTION_BIN"):
-		leftDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
-		rightDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
-
-	elif(currentState == "STOP_AT_COLLECTION_BIN"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-
-	elif(currentState == "RAISE_BUCKET"):
-		winchMotor.setSpeed(CONSTANTS.WINCH_SPEED)
-
-	elif(currentState == "LOWER_BUCKET"):
-		winchMotor.setSpeed(-CONSTANTS.WINCH_SPEED)
-
-	elif(currentState == "TELEOP_CONTROL"):
-		#do teleop
-		pass
-
-	else: # error state, set errything to off
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	# +----------------------------------------------+
-	# |               Next State Logic               |
-	# +----------------------------------------------+
-	# Conditionals to determine the next state
-	if(currentState == "OFF"):
+	if CONSTANTS.USING_NETWORK_COMM:
 		
-		# if last state was 'None', robot is just starting
-		if(lastState == None):
-			robotState.setState("ROTATE_TO_MARKER");
-
-	elif(currentState == "ROTATE_TO_MARKER"):
-		pass
-		# if marker is found, rotate towards dig area
-
-	'''
+		if(not inboundMessageQueue.isEmpty()):
+			currentMessage = inboundMessageQueue.getNext()
+			lastReceivedMessageNumber = currentReceivedMessageNumber
+			currentReceivedMessageNumber = currentMessage.messageNumber
+			
+		#new message has arrived, process
+		if(lastReceivedMessageNumber != currentReceivedMessageNumber):
+			
+			robotState.setState(currentMessage.type)
+			
+			if(currentMessage.type == "MSG_STOP"):
+				LOGGER.Debug("Received a MSG_STOP")
+				
+			
+			elif(currentMessage.type == "MSG_DRIVE_TIME"):
+				LOGGER.Debug("Received a MSG_DRIVE_TIME")
+			
+			elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
+				LOGGER.Debug("Received a MSG_DRIVE_DISTANCE")
+			
+			else:
+				LOGGER.Low("Received an invalid message.")
+				
+	
 	
 	leftDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	rightDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
@@ -252,16 +201,14 @@ while robotEnabled:
 		winchMotor.setSpeed(0)
 		
 	# +----------------------------------------------+
-	# |          Communication & Updates             |
+	# |                Communication                 |
 	# +----------------------------------------------+
-	# Update the motor values locally, then send new values over
-	# serial --- handled via threading
+
+	if CONSTANTS.USING_NETWORK_COMM:
+		networkClient.send("Hello World")
+		#BEEPCODES.heartbeat()
 
 
-
-	#if(not outboundMessageQueue.isEmpty()):
-	#	outboundMessageQueue.makeEmpty()
-	#outboundMessageQueue.add("Here is a response")
 	
 
 

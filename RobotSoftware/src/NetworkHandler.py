@@ -4,8 +4,6 @@ import thread
 
 class NetworkHandler(SocketServer.BaseRequestHandler):
 
-
-
     def __init__(self, inboundMessageQueue, outboundMessageQueue):
         self.inboundMessageQueue = inboundMessageQueue
         self.outboundMessageQueue = outboundMessageQueue
