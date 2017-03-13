@@ -191,41 +191,96 @@ while robotEnabled:
 			elif(currentMessage.type == "MSG_DRIVE_TIME"):
 				LOGGER.Debug("Received a MSG_DRIVE_TIME")
 				
+			elif(currentMessage.type == "MSG_SCOOP_TIME"):
+				LOGGER.Debug("Received a MSG_SCOOP_TIME")
+				
+			elif(currentMessage.type == "MSG_DEPTH_TIME"):
+				LOGGER.Debug("Received a MSG_DEPTH_TIME")
+				
+			elif(currentMessage.type == "MSG_BUCKET_TIME"):
+				LOGGER.Debug("Received a MSG_BUCKET_TIME")
 			
 			elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
 				LOGGER.Debug("Received a MSG_DRIVE_DISTANCE")
 				leftDriveMotor.setMode(MOTOR_MODES.K_SPEED)
 				rightDriveMotor.setMode(MOTOR_MODES.K_SPEED)
 				startingDistance = 0 #TODO get distance from encoders
-			
-			else:
-				LOGGER.Low("Received an invalid message.")
 				
-		
+			else:
+				LOGGER.Moderate("Received an invalid message.")
+				
+		#
+		# MSG_STOP:
+		# Stop all motors immediately
+		#
 		if(currentMessage.type == "MSG_STOP"):
 			ceaseAllMotorFunctions()
 			outboundMessageQueue.add("Finished\n")
 		
+		#
+		# MSG_DRIVE_TIME:
+		# Drive forward/backward with both motors at the same value
+		# Data 0: The time in seconds the robot should drive
+		# Data 1: The power/speed to drive at
+		#
 		elif(currentMessage.type == "MSG_DRIVE_TIME"):
-			#action is still running
 			currentMessage.printMessage()
 			if(time.time() < stateStartTime + currentMessage.messageData[0]):
 				driveSpeed = currentMessage.messageData[1]
 				leftDriveMotor.setSpeed(driveSpeed)
 				rightDriveMotor.setSpeed(-driveSpeed)
-			
-			#action has elapsed allotted time, stop motors while waiting for
-			#next action
 			else:
 				ceaseAllMotorFunctions()
 				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_SCOOP_TIME:
+		# Drive the scoops for a set time at a specified speed
+		# Data 0: The time in seconds the scoop motor should run
+		# Data 1: The power/speed to run the motor at
+		#		
+		elif(currentMessage.type == "MSG_SCOOP_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				scoopSpeed = currentMessage.messageData[1]
+				collectorScoopsMotor.setSpeed(scoopSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_DEPTH_TIME:
+		# Drive the depth motor for a set time at a specified power/speed
+		# Data 0: The time in seconds the depth motor should run
+		# Data 1: The power/speed to run the motor at
+		#			
+		elif(currentMessage.type == "MSG_DEPTH_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				depthSpeed = currentMessage.messageData[1]
+				collectorScoopsMotor.setSpeed(depthSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_BUCKET_TIME:
+		# Drive the bucket for a set time at a specified speed
+		# Data 0: The time in seconds the bucket motor should run
+		# Data 1: The power/speed to run the motor at
+		#			
+		elif(currentMessage.type == "MSG_BUCKET_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				bucketSpeed = currentMessage.messageData[1]
+				collectorScoopsMotor.setSpeed(bucketSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		
 				
 		elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
 			if(leftDriveMotor.getDistance() > startingDistance + currentMessage.messageData[0]):
 				driveSpeed = currentMessage.messageData[1]
 				leftDriveMotor.setSpeed(driveSpeed)
-				rightDriveMotor.setSpeed(-driveSpeed)
-				
+				rightDriveMotor.setSpeed(-driveSpeed)	
 			else:
 				ceaseAllMotorFunctions()
 				outboundMessageQueue.add("Finished\n")
@@ -254,12 +309,6 @@ while robotEnabled:
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 		
-
-
-
-	
-
-
 	#sleep to maintain a more constant thread time (specified in Constants.py)
 	loopEndTime = time.time()
 	loopExecutionTime = loopEndTime - loopStartTime
