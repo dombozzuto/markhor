@@ -1,9 +1,10 @@
 import Logger
 
 SENSOR_BOARD_PORT = "/dev/arduino"
+MOTOR_BOARD_PORT = "/dev/ttyUSB0"
 
 USING_MOTOR_BOARD = False
-USING_SENSOR_BOARD = True
+USING_SENSOR_BOARD = False
 USING_NETWORK_COMM = False
 USING_JOYSTICK = False
 

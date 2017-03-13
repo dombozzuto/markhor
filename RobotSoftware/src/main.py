@@ -17,6 +17,7 @@ from SerialHandler import SerialHandler
 from NetworkHandler import NetworkHandler
 from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
+import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
 
@@ -44,12 +45,12 @@ sensorHandler = SensorHandler()
 
 if CONSTANTS.USING_MOTOR_BOARD:
 	LOGGER.Debug("Initializing motor serial handler...")
-	motorSerialHandler = SerialHandler('/dev/ttyACM0')
+	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT)
 	motorSerialHandler.initSerial()
 	
 if CONSTANTS.USING_SENSOR_BOARD:
 	LOGGER.Debug("Initializing sensor serial handler...")
-	sensorSerialHandler = SerialHandler('/dev/arduino')
+	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT)
 	sensorSerialHandler.initSerial()
 
 #initialize network comms & server thread
@@ -130,7 +131,7 @@ if CONSTANTS.USING_SENSOR_BOARD:
 # final line before entering main loop
 robotEnabled = True
 time.sleep(0.5)
-
+BEEPCODES.happy1()
 LOGGER.Debug("Initialization complete, entering main loop...")
 while robotEnabled:
 
@@ -237,7 +238,7 @@ while robotEnabled:
 	if CONSTANTS.USING_JOYSTICK:
 		pygame.event.get()
 		jReader.updateValues()
-		leftDriveMotor.setSpeed(-jReader.axis_y1)
+		leftDriveMotor.setSpeed(jReader.axis_y1)
 		rightDriveMotor.setSpeed(jReader.axis_y2)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
