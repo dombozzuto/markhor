@@ -17,8 +17,12 @@ from SerialHandler import SerialHandler
 from NetworkHandler import NetworkHandler
 from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
+from NetworkClient import NetworkClient
+from NetworkMessage import NetworkMessage
+import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
+#from main import inboundMessageQueue
 
 LOGGER.Low("Beginning Program Execution")
 
@@ -36,6 +40,13 @@ def sensorCommunicationThread():
 	while True:
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
+		
+def ceaseAllMotorFunctions():
+	leftDriveMotor.setSpeed(0)
+	rightDriveMotor.setSpeed(0)
+	collectorDepthMotor.setSpeed(0)
+	collectorScoopsMotor.setSpeed(0)
+	winchMotor.setSpeed(0)
 
 #initialize handlers
 LOGGER.Debug("Initializing handlers...")
@@ -44,27 +55,32 @@ sensorHandler = SensorHandler()
 
 if CONSTANTS.USING_MOTOR_BOARD:
 	LOGGER.Debug("Initializing motor serial handler...")
-	motorSerialHandler = SerialHandler('/dev/ttyACM0')
+	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT)
 	motorSerialHandler.initSerial()
 	
 if CONSTANTS.USING_SENSOR_BOARD:
 	LOGGER.Debug("Initializing sensor serial handler...")
-	sensorSerialHandler = SerialHandler('/dev/arduino')
+	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT)
 	sensorSerialHandler.initSerial()
 
 #initialize network comms & server thread
 if CONSTANTS.USING_NETWORK_COMM:
+	networkClient = NetworkClient(CONSTANTS.CONTROL_STATION_IP, CONSTANTS.CONTROL_STATION_PORT)
 	inboundMessageQueue = MessageQueue()
+	networkClient.setInboundMessageQueue(inboundMessageQueue)
 	outboundMessageQueue = MessageQueue()
+	lastReceivedMessageNumber = -1
+	currentReceivedMessageNumber = -1
+	stateStartTime = -1
 
-	networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
-
-	server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
-	serverThread = Thread(target=runServer, args=(server,))
-	serverThread.start()
-
+	#networkHandler = NetworkHandler(inboundMessageQueue, outboundMessageQueue)
+	#server = SocketServer.TCPServer((CONSTANTS.HOST, CONSTANTS.PORT), networkHandler)
+	#serverThread = Thread(target=runServer, args=(server,))
+	#serverThread.start()
 
 
+# setup some variables that will be used with each iteration of the loop
+currentMessage = NetworkMessage("")
 
 # initialize motors
 LOGGER.Debug("Initializing motor objects...")
@@ -130,7 +146,7 @@ if CONSTANTS.USING_SENSOR_BOARD:
 # final line before entering main loop
 robotEnabled = True
 time.sleep(0.5)
-
+BEEPCODES.happy1()
 LOGGER.Debug("Initialization complete, entering main loop...")
 while robotEnabled:
 
@@ -140,93 +156,136 @@ while robotEnabled:
 	currentState = robotState.getState()
 	lastState = robotState.getLastState()
 
-	'''
+	# +----------------------------------------------+
+	# |                Communication                 |
+	# +----------------------------------------------+
+
+	if CONSTANTS.USING_NETWORK_COMM:
+		if(outboundMessageQueue.isEmpty()):
+			networkClient.send("Hello World\n")
+		else:
+			networkClient.send(outboundMessageQueue.getNext())
+		#BEEPCODES.heartbeat()
+
+	
 	# +----------------------------------------------+
 	# |              Current State Logic             |
 	# +----------------------------------------------+
 	# State machine handles the robot's current states
-	
-	if(currentState == "OFF"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "ROTATE_TO_MARKER"):
-		pass
-		#rotate motors according to camera
-
-	elif(currentState == "DRIVE_TO_DIG_AREA"):
-		leftDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
-		rightDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "STOP_AT_DIG_AREA"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "RUN_SCOOPS"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(CONSTANTS.SCOOP_SPEED)
-		collectorDepthMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	elif(currentState == "INCREMENT_DEPTH"):
-		collectorDepthMotor.setSpeed(CONSTANTS.DEPTH_SPEED)
-
-	elif(currentState == "DECREMENT_DEPTH"):
-		collectorDepthMotor.setSpeed(-CONSTANTS.DEPTH_SPEED)
-
-	elif(currentState == "STOP_SCOOPS"):
-		collectorScoopsMotor.setSpeed(0)
-
-	elif(currentState == "DRIVE_TO_COLLECTION_BIN"):
-		leftDriveMotor.setSpeed(-CONSTANTS.DRIVE_SPEED)
-		rightDriveMotor.setSpeed(CONSTANTS.DRIVE_SPEED)
-
-	elif(currentState == "STOP_AT_COLLECTION_BIN"):
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-
-	elif(currentState == "RAISE_BUCKET"):
-		winchMotor.setSpeed(CONSTANTS.WINCH_SPEED)
-
-	elif(currentState == "LOWER_BUCKET"):
-		winchMotor.setSpeed(-CONSTANTS.WINCH_SPEED)
-
-	elif(currentState == "TELEOP_CONTROL"):
-		#do teleop
-		pass
-
-	else: # error state, set errything to off
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
-
-	# +----------------------------------------------+
-	# |               Next State Logic               |
-	# +----------------------------------------------+
-	# Conditionals to determine the next state
-	if(currentState == "OFF"):
+	if CONSTANTS.USING_NETWORK_COMM:
 		
-		# if last state was 'None', robot is just starting
-		if(lastState == None):
-			robotState.setState("ROTATE_TO_MARKER");
-
-	elif(currentState == "ROTATE_TO_MARKER"):
-		pass
-		# if marker is found, rotate towards dig area
-
-	'''
+		if(not inboundMessageQueue.isEmpty()):
+			currentMessage = inboundMessageQueue.getNext()
+			lastReceivedMessageNumber = currentReceivedMessageNumber
+			currentReceivedMessageNumber = currentMessage.messageNumber
+			
+		#new message has arrived, process
+		if(lastReceivedMessageNumber != currentReceivedMessageNumber):
+			
+			stateStartTime = time.time()
+			robotState.setState(currentMessage.type)
+			
+			if(currentMessage.type == "MSG_STOP"):
+				LOGGER.Debug("Received a MSG_STOP")
+				
+			elif(currentMessage.type == "MSG_DRIVE_TIME"):
+				LOGGER.Debug("Received a MSG_DRIVE_TIME")
+				
+			elif(currentMessage.type == "MSG_SCOOP_TIME"):
+				LOGGER.Debug("Received a MSG_SCOOP_TIME")
+				
+			elif(currentMessage.type == "MSG_DEPTH_TIME"):
+				LOGGER.Debug("Received a MSG_DEPTH_TIME")
+				
+			elif(currentMessage.type == "MSG_BUCKET_TIME"):
+				LOGGER.Debug("Received a MSG_BUCKET_TIME")
+			
+			elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
+				LOGGER.Debug("Received a MSG_DRIVE_DISTANCE")
+				leftDriveMotor.setMode(MOTOR_MODES.K_SPEED)
+				rightDriveMotor.setMode(MOTOR_MODES.K_SPEED)
+				startingDistance = 0 #TODO get distance from encoders
+				
+			else:
+				LOGGER.Moderate("Received an invalid message.")
+				
+		#
+		# MSG_STOP:
+		# Stop all motors immediately
+		#
+		if(currentMessage.type == "MSG_STOP"):
+			ceaseAllMotorFunctions()
+			outboundMessageQueue.add("Finished\n")
+		
+		#
+		# MSG_DRIVE_TIME:
+		# Drive forward/backward with both motors at the same value
+		# Data 0: The time in seconds the robot should drive
+		# Data 1: The power/speed to drive at
+		#
+		elif(currentMessage.type == "MSG_DRIVE_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				driveSpeed = currentMessage.messageData[1]
+				leftDriveMotor.setSpeed(driveSpeed)
+				rightDriveMotor.setSpeed(-driveSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_SCOOP_TIME:
+		# Drive the scoops for a set time at a specified speed
+		# Data 0: The time in seconds the scoop motor should run
+		# Data 1: The power/speed to run the motor at
+		#		
+		elif(currentMessage.type == "MSG_SCOOP_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				scoopSpeed = currentMessage.messageData[1]
+				collectorScoopsMotor.setSpeed(scoopSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_DEPTH_TIME:
+		# Drive the depth motor for a set time at a specified power/speed
+		# Data 0: The time in seconds the depth motor should run
+		# Data 1: The power/speed to run the motor at
+		#			
+		elif(currentMessage.type == "MSG_DEPTH_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				depthSpeed = currentMessage.messageData[1]
+				collectorDepthMotor.setSpeed(depthSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		#
+		# MSG_BUCKET_TIME:
+		# Drive the bucket for a set time at a specified speed
+		# Data 0: The time in seconds the bucket motor should run
+		# Data 1: The power/speed to run the motor at
+		#			
+		elif(currentMessage.type == "MSG_BUCKET_TIME"):
+			currentMessage.printMessage()
+			if(time.time() < stateStartTime + currentMessage.messageData[0]):
+				bucketSpeed = currentMessage.messageData[1]
+				winchMotor.setSpeed(bucketSpeed)
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+		
+				
+		elif(currentMessage.type == "MSG_DRIVE_DISTANCE"):
+			if(leftDriveMotor.getDistance() > startingDistance + currentMessage.messageData[0]):
+				driveSpeed = currentMessage.messageData[1]
+				leftDriveMotor.setSpeed(driveSpeed)
+				rightDriveMotor.setSpeed(-driveSpeed)	
+			else:
+				ceaseAllMotorFunctions()
+				outboundMessageQueue.add("Finished\n")
+			
+		
 	
 	leftDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	rightDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
@@ -235,39 +294,29 @@ while robotEnabled:
 	winchMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	
 	if CONSTANTS.USING_JOYSTICK:
-		pygame.event.get()
-		jReader.updateValues()
-		leftDriveMotor.setSpeed(-jReader.axis_y1)
-		rightDriveMotor.setSpeed(jReader.axis_y2)
+		#pygame.event.get()
+		#jReader.updateValues()
+		#leftDriveMotor.setSpeed(jReader.axis_y1)
+		#rightDriveMotor.setSpeed(jReader.axis_y2)
+		leftDriveMotor.setSpeed(1.0)
+		rightDriveMotor.setSpeed(-1.0)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 	
-	else:
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
+	#else:
+	#	leftDriveMotor.setSpeed(0)
+	#	rightDriveMotor.setSpeed(0)
+	#	collectorDepthMotor.setSpeed(0)
+	#	collectorScoopsMotor.setSpeed(0)
+	#	winchMotor.setSpeed(0)
 		
-	# +----------------------------------------------+
-	# |          Communication & Updates             |
-	# +----------------------------------------------+
-	# Update the motor values locally, then send new values over
-	# serial --- handled via threading
-
-
-
-	#if(not outboundMessageQueue.isEmpty()):
-	#	outboundMessageQueue.makeEmpty()
-	#outboundMessageQueue.add("Here is a response")
-	
-
-
 	#sleep to maintain a more constant thread time (specified in Constants.py)
 	loopEndTime = time.time()
 	loopExecutionTime = loopEndTime - loopStartTime
 	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime
 	if(sleepTime > 0):
 		time.sleep(sleepTime)
+
+
 

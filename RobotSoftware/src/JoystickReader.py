@@ -1,4 +1,5 @@
 import pygame
+import time
 
 def deadband(value):
     if value > -0.1 and value < 0.1:
@@ -34,34 +35,28 @@ class JoystickReader:
     
     def updateValues(self):
         #axes
-        self.axis_x1 = deadband(self.joystick.get_axis(0))
+        #self.axis_x1 = deadband(self.joystick.get_axis(0))
         self.axis_y1 = deadband(self.joystick.get_axis(1))
-        self.axis_x2 = deadband(self.joystick.get_axis(4))
-        self.axis_y2 = deadband(self.joystick.get_axis(3))
-        trigger_axis = deadband(self.joystick.get_axis(2))
-        if(trigger_axis >= 0):
-            self.axis_lt = trigger_axis
-            self.axis_rt = 0
-        else:
-            self.axis_lt = 0
-            self.axis_rt = -trigger_axis
-        
+        #self.axis_x2 = deadband(self.joystick.get_axis(4))
+        self.axis_y2 = deadband(self.joystick.get_axis(4))
+        #self.axis_lt = deadband(self.joystick.get_axis(2))
+        #self.axis_rt = deadband(self.joystick.get_axis(5))
         #buttons
-        self.btn_a = self.joystick.get_button(0)
-        self.btn_b = self.joystick.get_button(1)
-        self.btn_x = self.joystick.get_button(2)
-        self.btn_y = self.joystick.get_button(3)
-        self.btn_lb = self.joystick.get_button(4)
-        self.btn_rb = self.joystick.get_button(5)
-        self.btn_back = self.joystick.get_button(6)
-        self.btn_start = self.joystick.get_button(7)
+        #self.btn_a = self.joystick.get_button(0)
+        #self.btn_b = self.joystick.get_button(1)
+        #self.btn_x = self.joystick.get_button(2)
+        #self.btn_y = self.joystick.get_button(3)
+        #self.btn_lb = self.joystick.get_button(4)
+        #self.btn_rb = self.joystick.get_button(5)
+        #self.btn_back = self.joystick.get_button(6)
+        #self.btn_start = self.joystick.get_button(7)
         
         #dpad
-        x,y = self.joystick.get_hat(0)
-        self.dpad_left = (x == -1)
-        self.dpad_right = (x == 1)
-        self.dpad_up = (y == 1)
-        self.dpad_down = (y == -1)
+        #x,y = self.joystick.get_hat(0)
+        #self.dpad_left = (x == -1)
+        #self.dpad_right = (x == 1)
+        #elf.dpad_up = (y == 1)
+        #self.dpad_down = (y == -1)
             
         
     def printAxes(self):
@@ -84,6 +79,5 @@ if __name__ == "__main__":
     while True:
         pygame.event.get()
         jReader.updateValues()
-        jReader.printDPad()
-        
-    
+        #jReader.printDPad()
+        jReader.printAxes()

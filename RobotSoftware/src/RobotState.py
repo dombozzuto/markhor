@@ -17,3 +17,13 @@ class RobotState:
 		self.lastState = self.currentState
 		self.currentState = state
 
+STATES = ["MSG_STOP",
+		  "MSG_DRIVE_TIME",
+		  "MSG_DRIVE_DISTANCE",
+		  "MSG_SCOOP_TIME",
+		  "MSG_SCOOP_DISTANCE",
+		  "MSG_DEPTH_TIME",
+		  "MSG_DEPTH_DISTANCE",
+		  "MSG_BUCKET_TIME",
+		  "MSG_BUCKET_DISTANCE",
+		  "MSG_STOP_TIME"]

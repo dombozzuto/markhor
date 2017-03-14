@@ -17,12 +17,12 @@ public class MessageQueue
 	
 	public Message peek()
 	{
-		return isEmpty() ? queue.get(0) : null;
+		return !isEmpty() ? queue.get(0) : null;
 	}
 	
 	public Message pop()
 	{
-		return isEmpty() ? queue.remove(0) : null;
+		return !isEmpty() ? queue.remove(0) : null;
 	}
 	
 	public void add(Message msg)

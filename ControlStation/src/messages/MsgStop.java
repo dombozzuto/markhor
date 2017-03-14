@@ -7,6 +7,7 @@ public class MsgStop extends AbsMessage
 {
 	public MsgStop()
 	{
+		super();
 		setType(MessageType.MSG_STOP);
 		setSize(0);
 		setInfo("Ceasing all motor functions.\n");
