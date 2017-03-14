@@ -256,7 +256,7 @@ while robotEnabled:
 			currentMessage.printMessage()
 			if(time.time() < stateStartTime + currentMessage.messageData[0]):
 				depthSpeed = currentMessage.messageData[1]
-				collectorScoopsMotor.setSpeed(depthSpeed)
+				collectorDepthMotor.setSpeed(depthSpeed)
 			else:
 				ceaseAllMotorFunctions()
 				outboundMessageQueue.add("Finished\n")
@@ -270,7 +270,7 @@ while robotEnabled:
 			currentMessage.printMessage()
 			if(time.time() < stateStartTime + currentMessage.messageData[0]):
 				bucketSpeed = currentMessage.messageData[1]
-				collectorScoopsMotor.setSpeed(bucketSpeed)
+				winchMotor.setSpeed(bucketSpeed)
 			else:
 				ceaseAllMotorFunctions()
 				outboundMessageQueue.add("Finished\n")
@@ -294,20 +294,22 @@ while robotEnabled:
 	winchMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	
 	if CONSTANTS.USING_JOYSTICK:
-		pygame.event.get()
-		jReader.updateValues()
-		leftDriveMotor.setSpeed(jReader.axis_y1)
-		rightDriveMotor.setSpeed(jReader.axis_y2)
+		#pygame.event.get()
+		#jReader.updateValues()
+		#leftDriveMotor.setSpeed(jReader.axis_y1)
+		#rightDriveMotor.setSpeed(jReader.axis_y2)
+		leftDriveMotor.setSpeed(1.0)
+		rightDriveMotor.setSpeed(-1.0)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 	
-	else:
-		leftDriveMotor.setSpeed(0)
-		rightDriveMotor.setSpeed(0)
-		collectorDepthMotor.setSpeed(0)
-		collectorScoopsMotor.setSpeed(0)
-		winchMotor.setSpeed(0)
+	#else:
+	#	leftDriveMotor.setSpeed(0)
+	#	rightDriveMotor.setSpeed(0)
+	#	collectorDepthMotor.setSpeed(0)
+	#	collectorScoopsMotor.setSpeed(0)
+	#	winchMotor.setSpeed(0)
 		
 	#sleep to maintain a more constant thread time (specified in Constants.py)
 	loopEndTime = time.time()
