@@ -162,7 +162,14 @@ while robotEnabled:
 
 	if CONSTANTS.USING_NETWORK_COMM:
 		if(outboundMessageQueue.isEmpty()):
-			networkClient.send("Hello World\n")
+			outboundMessage = ""
+			outboundMessage += motorHandler.getNetworkMotorData()
+			outboundMessage += "<"
+			outboundMessage += str(int(collectorDepthMotor.forward_limit)) + ","
+			outboundMessage += str(int(collectorDepthMotor.reverse_limit)) + ","
+			outboundMessage += str(int(winchMotor.forward_limit)) + ","
+			outboundMessage += str(int(winchMotor.reverse_limit)) + ">\n"
+			networkClient.send(outboundMessage)
 		else:
 			networkClient.send(outboundMessageQueue.getNext())
 		#BEEPCODES.heartbeat()
