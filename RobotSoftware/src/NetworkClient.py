@@ -33,5 +33,5 @@ class NetworkClient:
         s.send(msg_str)
         data = s.recv(self.buffer_size)
         self.inboundMessageQueue.add(NetworkMessage(str(data)))
-        print "Received: " + str(data)
+        #print "Received: " + str(data)
         s.close()

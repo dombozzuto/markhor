@@ -148,6 +148,8 @@ robotEnabled = True
 time.sleep(0.5)
 BEEPCODES.happy1()
 LOGGER.Debug("Initialization complete, entering main loop...")
+
+test_speed_val = -1.0
 while robotEnabled:
 
 	loopStartTime = time.time()
@@ -161,17 +163,17 @@ while robotEnabled:
 	# +----------------------------------------------+
 
 	if CONSTANTS.USING_NETWORK_COMM:
-		if(outboundMessageQueue.isEmpty()):
-			outboundMessage = ""
-			outboundMessage += motorHandler.getNetworkMotorData()
-			outboundMessage += "<"
-			outboundMessage += str(int(collectorDepthMotor.forward_limit)) + ","
-			outboundMessage += str(int(collectorDepthMotor.reverse_limit)) + ","
-			outboundMessage += str(int(winchMotor.forward_limit)) + ","
-			outboundMessage += str(int(winchMotor.reverse_limit)) + ">\n"
-			networkClient.send(outboundMessage)
-		else:
-			networkClient.send(outboundMessageQueue.getNext())
+		connected = False
+		while(not connected):
+			try:
+				if(outboundMessageQueue.isEmpty()):
+					networkClient.send("Hello World\n")
+				else:
+					networkClient.send(outboundMessageQueue.getNext())
+				connected = True
+			except:
+				LOGGER.Critical("Could not connect to network, attempting to reconnect...")
+				ceaseAllMotorFunctions()
 		#BEEPCODES.heartbeat()
 
 	
@@ -191,6 +193,7 @@ while robotEnabled:
 			
 			stateStartTime = time.time()
 			robotState.setState(currentMessage.type)
+			print currentMessage.type
 			
 			if(currentMessage.type == "MSG_STOP"):
 				LOGGER.Debug("Received a MSG_STOP")
@@ -213,6 +216,9 @@ while robotEnabled:
 				rightDriveMotor.setMode(MOTOR_MODES.K_SPEED)
 				startingDistance = 0 #TODO get distance from encoders
 				
+			elif(currentMessage.type == "MSG_MOTOR_VALUES"):
+				LOGGER.Debug("Received a MSG_MOTOR_VALUES")
+				print "MADE IT 1"
 			else:
 				LOGGER.Moderate("Received an invalid message.")
 				
@@ -292,8 +298,13 @@ while robotEnabled:
 				ceaseAllMotorFunctions()
 				outboundMessageQueue.add("Finished\n")
 			
-		
-	
+		elif(currentMessage.type == "MSG_MOTOR_VALUES"):
+			leftDriveMotor.setSpeed(currentMessage.messageData[0])
+			rightDriveMotor.setSpeed(currentMessage.messageData[1])
+			collectorScoopsMotor.setSpeed(currentMessage.messageData[2])
+			collectorDepthMotor.setSpeed(currentMessage.messageData[3])
+			winchMotor.setSpeed(currentMessage.messageData[4])
+	#will be removed
 	leftDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	rightDriveMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
 	collectorDepthMotor.setMode(MOTOR_MODES.K_PERCENT_VBUS)
@@ -311,12 +322,17 @@ while robotEnabled:
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)
 	
-	#else:
-	#	leftDriveMotor.setSpeed(0)
-	#	rightDriveMotor.setSpeed(0)
-	#	collectorDepthMotor.setSpeed(0)
-	#	collectorScoopsMotor.setSpeed(0)
-	#	winchMotor.setSpeed(0)
+#	else:
+#		if(test_speed_val > 1.0):
+#			test_speed_val = 0
+#		else:
+#			test_speed_val += 0.001
+#		test_speed_val += 0.001
+		#leftDriveMotor.setSpeed(0)
+		#rightDriveMotor.setSpeed(0)
+		#collectorDepthMotor.setSpeed(0)
+		#collectorScoopsMotor.setSpeed(0)
+		#winchMotor.setSpeed(0)
 		
 	#sleep to maintain a more constant thread time (specified in Constants.py)
 	loopEndTime = time.time()

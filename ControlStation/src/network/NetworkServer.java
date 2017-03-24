@@ -3,6 +3,7 @@ package network;
 import java.io.*;
 import java.net.*;
 
+import common.Gamepad;
 import common.MessageQueue;
 
 public class NetworkServer extends Thread
@@ -11,6 +12,7 @@ public class NetworkServer extends Thread
 	private MessageQueue queue;
 	private int port;
 	private boolean running = false;
+	private Gamepad g = new Gamepad();
 	
 	public NetworkServer(int port, MessageQueue queue)
 	{
