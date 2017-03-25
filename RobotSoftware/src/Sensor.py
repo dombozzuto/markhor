@@ -33,4 +33,5 @@ class Sensor:
 				except:
 					print "ERROR: Unable to parse one or more of the message components. Device ID: " + str(self.sensor_name)
 		
-
+	def getDataMessage(self):
+		return "<" + self.sensor_name + ":" + str(self.value) + ">"

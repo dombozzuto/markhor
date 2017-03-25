@@ -49,6 +49,7 @@ class RequestHandler extends Thread
             {
             	out.println("<0|-1>");
             	out.flush();
+            	System.out.println("Sent: <0|-1>");
             }
             
             // Close our connection

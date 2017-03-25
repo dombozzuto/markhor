@@ -19,6 +19,11 @@ class SensorHandler:
 			sensorMsg += str(sensor.getValue()) + '|';
 		return sensorMsg
 
+	def getSensorDataMessage(self):
+		msg = ""
+		for sensor in self.sensors:
+			msg += sensor.getDataMessage()
+		return msg
 
 
 

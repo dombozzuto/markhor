@@ -19,6 +19,7 @@ from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
 from NetworkClient import NetworkClient
 from NetworkMessage import NetworkMessage
+from DataMessage import DataMessage
 import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime

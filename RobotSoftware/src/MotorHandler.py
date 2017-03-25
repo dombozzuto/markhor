@@ -18,3 +18,9 @@ class MotorHandler:
 			msg += motor.getStateMessage()
 		msg += "\n\r"
 		return msg
+	
+	def getMotorDataMessage(self):
+		msg = ""
+		for motor in self.motors:
+			msg += motor.getDataMessage()
+		return msg

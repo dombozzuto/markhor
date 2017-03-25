@@ -74,5 +74,15 @@ class Motor:
 	def getStateMessage(self):
 		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(int(self.setpoint_val * 1000)) + ">"
 
-
+	def getDataMessage(self):
+		msg = "<"
+		msg += self.motor_name + ":"
+		msg += str(self.deviceID) + ":"
+		msg += str(self.setpoint_val) + ":"
+		msg += str(self.actual_val) + ":"
+		msg += str(self.mode) + ":"
+		msg += str(self.current_val) + ":"
+		msg += str(self.forward_limit) + ":"
+		msg += str(self.reverse_limit) + ">"
+		return msg
 	
