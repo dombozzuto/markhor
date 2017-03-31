@@ -5,11 +5,12 @@ namespace Markhor_Motor_Control
     class StatusData
     {   
         private int talonDeviceID;          //fixed device id
-        private int talonCurrent;           //current in mA
-        private int talonTemperature;       //temp in milli-degC
-        private int talonVoltage;           //voltage in mV
-        private int talonSpeed;             //encoder ticks/100ms
-        private int talonSetpoint;          //setpoint based on control mode
+        private float talonCurrent;           //current in mA
+        private float talonTemperature;       //temp in milli-degC
+        private float talonVoltage;           //voltage in mV
+        private float talonPosition;          //position in encoder ticks
+        private float talonSpeed;             //encoder ticks/100ms
+        private float talonSetpoint;          //setpoint based on control mode
 
         private CTRE.TalonSrx.ControlMode controlMode;    //talon control mode
 
@@ -27,11 +28,12 @@ namespace Markhor_Motor_Control
 
         public void updateStatusData()
         {
-            talonCurrent = (int)(talon.GetOutputCurrent() * 1000);
-            talonTemperature = (int)(talon.GetTemperature() * 1000);
-            talonVoltage = (int)(talon.GetOutputVoltage() * 1000);
-            talonSpeed = (int)(talon.GetSpeed());
-            talonSetpoint = (int)(talon.GetSetpoint() * 1000);
+            talonCurrent = (talon.GetOutputCurrent());          
+            talonTemperature = (talon.GetTemperature());          
+            talonVoltage = (talon.GetOutputVoltage());         
+            talonSpeed = (talon.GetSpeed());                           
+            talonPosition = (talon.GetPosition());
+            talonSetpoint = (talon.GetSetpoint());                     
             talonForwardLimitReached = talon.IsFwdLimitSwitchClosed() ? 1 : 0;
             talonReverseLimitReached = talon.IsRevLimitSwitchClosed() ? 1 : 0;
             controlMode = talon.GetControlMode();
@@ -41,17 +43,18 @@ namespace Markhor_Motor_Control
         {
             String outboundMessage = "<";
 
-            outboundMessage += talonDeviceID.ToString() + ":";
-            outboundMessage += talonCurrent.ToString() + ":";
-            outboundMessage += talonTemperature.ToString() + ":";
-            outboundMessage += talonVoltage.ToString() + ":";
-            outboundMessage += talonSpeed.ToString() + ":";
-            outboundMessage += talonSetpoint.ToString() + ":";
+            outboundMessage += talonDeviceID.ToString() + ":";      //0
+            outboundMessage += talonCurrent.ToString() + ":";       //1
+            outboundMessage += talonTemperature.ToString() + ":";   //2
+            outboundMessage += talonVoltage.ToString() + ":";       //3
+            outboundMessage += talonSpeed.ToString() + ":";         //4
+            outboundMessage += talonPosition.ToString() + ":";      //5
+            outboundMessage += talonSetpoint.ToString() + ":";      //6
 
-            outboundMessage += controlMode.ToString() + ":";
+            outboundMessage += controlMode.ToString() + ":";        //7
 
-            outboundMessage += talonForwardLimitReached.ToString() + ":";
-            outboundMessage += talonReverseLimitReached.ToString();
+            outboundMessage += talonForwardLimitReached.ToString() + ":";   //8
+            outboundMessage += talonReverseLimitReached.ToString();         //9
 
             outboundMessage += ">";
             return outboundMessage;

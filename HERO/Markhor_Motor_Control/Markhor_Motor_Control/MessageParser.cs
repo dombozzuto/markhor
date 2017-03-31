@@ -16,7 +16,7 @@ namespace Markhor_Motor_Control
         public static ArrayList parseMessage(String msg)
         {
             ArrayList controlData = new ArrayList();
-            String pattern = "<([0-9]+):([0-9]+):([-0-9]+)>";
+            String pattern = @"<([0-9]+):([0-9]+):([-0-9]+\.[0-9]+)>";
             MatchCollection mc = Regex.Matches(msg, pattern);
 
             foreach(Match m in mc)
@@ -26,9 +26,10 @@ namespace Markhor_Motor_Control
                 String[] subparts = data.Split(':');
                 int deviceID = Int32.Parse(subparts[0]);
                 int mode = Int32.Parse(subparts[1]);
-                int setpoint = Int32.Parse(subparts[2]);
+                Double setpoint = Double.Parse(subparts[2]);
                 controlData.Add(new SetpointData(deviceID, mode, setpoint));
             }
+
 
             /*
             try
