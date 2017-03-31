@@ -6,6 +6,8 @@ public enum MessageType {
 	MSG_DRIVE_TIME,
 	MSG_DRIVE_DISTANCE,
 	
+	MSG_ROTATE_TIME,
+	
 	MSG_SCOOP_TIME,
 	MSG_SCOOP_DISTANCE,
 	
@@ -14,6 +16,7 @@ public enum MessageType {
 	
 	MSG_BUCKET_TIME,
 	MSG_BUCKET_DISTANCE,
+	MSG_BUCKET_POSITION,
 	
 	MSG_STOP_TIME,
 	

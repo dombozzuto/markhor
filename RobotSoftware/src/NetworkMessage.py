@@ -1,4 +1,5 @@
 import RobotState
+from Constants import LOGGER
 
 class NetworkMessage():
     
@@ -14,16 +15,14 @@ class NetworkMessage():
             msg_str = msg_str.strip("\< \>\n\r")
             msg_parts1 = msg_str.split("|")
             self.type = RobotState.STATES[int(msg_parts1[0])]
-            
             msg_parts2 = msg_parts1[1].split(":")
             self.messageNumber = int(msg_parts2[0])
-            
             for i in range(1, len(msg_parts2)):
                 self.messageData.append(float(msg_parts2[i]))
                 
         #Some error occurred in parsing the message - probably malformed.
         except:
-	    print "error on message:" + msg_str
+	    LOGGER.Moderate("Error on message:" + msg_str)
             pass
         
     def printMessage(self):

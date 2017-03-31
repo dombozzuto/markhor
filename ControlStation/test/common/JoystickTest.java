@@ -29,8 +29,8 @@ public class JoystickTest {
 			//			 ":" + g.getButtonLB() + ":" + g.getButtonRB() + ":" + g.getButtonBack() + ":" + g.getButtonStart() +
 			//			 ":" + g.getButtonLJ() + ":" + g.getButtonRJ());
 			
-			//System.out.println(g.getAxisX1() + ":" + g.getAxisY1() + ":" + g.getAxisX2() + ":" + g.getAxisY2() + ":" + g.getAxisT());
-			System.out.println(g.getDPad());
+			System.out.println(g.getAxisX1() + ":" + g.getAxisY1() + ":" + g.getAxisX2() + ":" + g.getAxisY2() + ":" + g.getAxisT());
+			//System.out.println(g.getDPad());
 			Thread.sleep(20);
 		}
 	}

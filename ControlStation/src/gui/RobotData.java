@@ -165,111 +165,23 @@ public class RobotData
 		}
 	}
 	
-	
-	
-	public double getLeftMotorSetpoint() {
-		return leftMotorSetpoint;
-	}
-
-	public double getRightMotorSetpoint() {
-		return rightMotorSetpoint;
-	}
-
-	public double getScoopMotorSetpoint() {
-		return scoopMotorSetpoint;
-	}
-
-	public double getDepthMotorSetpoint() {
-		return depthMotorSetpoint;
-	}
-
-	public double getWinchMotorSetpoint() {
-		return winchMotorSetpoint;
-	}
-
-	public double getLeftMotorActual() {
-		return leftMotorActual;
-	}
-
-	public double getRightMotorActual() {
-		return rightMotorActual;
-	}
-
-	public double getScoopMotorActual() {
-		return scoopMotorActual;
-	}
-
-	public double getDepthMotorActual() {
-		return depthMotorActual;
-	}
-
-	public double getWinchMotorActual() {
-		return winchMotorActual;
-	}
-
-	public double getLeftMotorCurrent() {
-		return leftMotorCurrent;
-	}
-
-	public double getRightMotorCurrent() {
-		return rightMotorCurrent;
-	}
-
-	public double getScoopMotorCurrent() {
-		return scoopMotorCurrent;
-	}
-
-	public double getDepthMotorCurrent() {
-		return depthMotorCurrent;
-	}
-
-	public double getWinchMotorCurrent() {
-		return winchMotorCurrent;
-	}
-
-	public MotorMode getLeftMotorMode() {
-		return leftMotorMode;
-	}
-
-	public MotorMode getRightMotorMode() {
-		return rightMotorMode;
-	}
-
-	public MotorMode getScoopMotorMode() {
-		return scoopMotorMode;
-	}
-
-	public MotorMode getDepthMotorMode() {
-		return depthMotorMode;
-	}
-
-	public MotorMode getWinchMotorMode() {
-		return winchMotorMode;
-	}
-
-	public boolean isDepthMotorUpperLimit() {
-		return depthMotorUpperLimit;
-	}
-
-	public boolean isDepthMotorLowerLimit() {
-		return depthMotorLowerLimit;
-	}
-
-	public boolean isWinchMotorUpperLimit() {
-		return winchMotorUpperLimit;
-	}
-
-	public boolean isWinchMotorLowerLimit() {
-		return winchMotorLowerLimit;
+	private void updateSensors(String sensorString)
+	{
+		final String patternStr = "<(\\d+),(\\d+),(\\d+),(\\d+)>";
+		Pattern pattern = Pattern.compile(patternStr);
+		Matcher m = pattern.matcher(sensorString);
+		if(m.matches())
+		{
+			/*
+			 * TODO: Add logic for sensors
+			 */
+		}
+		else
+		{
+			System.out.println("Update Sensors Failed!");
+		}
 	}
 
 	private RobotData() {}
-	
-
-
-	
-
-	
-	
 	
 }
