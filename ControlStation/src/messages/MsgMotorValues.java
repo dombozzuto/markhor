@@ -20,7 +20,7 @@ public class MsgMotorValues extends AbsMessage
 	public String getMessageString()
 	{
 		g.update();
-		double leftMotorVal = g.getAxisY1();
+		double leftMotorVal = -g.getAxisY1();
 		double rightMotorVal = g.getAxisY2();
 		double scoopMotorVal = g.getAxisT();
 		double depthMotorVal = g.getButtonA() ? 1.0 : g.getButtonY() ? -1.0 : 0.0;
