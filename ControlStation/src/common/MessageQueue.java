@@ -30,9 +30,14 @@ public class MessageQueue
 		return !isEmpty() ? queue.remove(0) : null;
 	}
 	
-	public void add(Message msg)
+	public void addAtBack(Message msg)
 	{
 		queue.add(msg);
+	}
+	
+	public void addAtPosition(Message msg, int i)
+	{
+		queue.add(i, msg);
 	}
 	
 	public void addAtFront(Message msg)

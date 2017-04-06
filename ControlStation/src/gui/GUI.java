@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import java.awt.Point;
 import javax.swing.SpringLayout;
 import javax.swing.JTabbedPane;
+import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -40,7 +41,7 @@ public class GUI extends JFrame{
 	private JFrame frame;
 	
 	private JTextField txtSupposedToBe;
-	private JTextField textField_6;
+	private JTextField tbox_messageAddPosition;
 	private JTextField tbox_data0;
 	private JTextField tbox_data1;
 	private JTextField tbox_data2;
@@ -51,6 +52,8 @@ public class GUI extends JFrame{
 	private JTextField tbox_data7;
 	
 	private MessageQueue messageQueue;
+	private DefaultListModel<String> model = new DefaultListModel<String>();
+	private JList messageList = new JList<String>(model);
 	private MessageType selectedMessageType = MessageType.MSG_STOP;
 	private Message selectedMessage = new MsgStop();
 	private JLabel[] messageLabels = new JLabel[8];
@@ -171,6 +174,14 @@ public class GUI extends JFrame{
 		btnRemoveSelected.setPreferredSize(new Dimension(100, 100));
 		
 		JButton btnClearAll = new JButton("Clear All");
+		btnClearAll.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) 
+			{
+				messageQueue.clear();
+				updateMessageQueueList(messageList);
+			}
+		});
 		btnClearAll.setBackground(new Color(0, 0, 128));
 		btnClearAll.setForeground(new Color(255, 255, 255));
 		btnClearAll.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -179,8 +190,6 @@ public class GUI extends JFrame{
 		btnStop.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnStop.setForeground(new Color(255, 255, 255));
 		btnStop.setBackground(new Color(255, 0, 0));
-		
-		JList<String> messageList = new JList<String>();
 		
 		JButton btnStartQueue = new JButton("START");
 		btnStartQueue.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -292,10 +301,14 @@ public class GUI extends JFrame{
 		cbox_cmdType.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) 
 			{
-				selectedMessageType = MessageType.values()[cbox_cmdType.getSelectedIndex()];
-				selectedMessage = MessageFactory.makeMessage(selectedMessageType);
-				updateMessageLabels();
-				System.out.println("Selected a Message of Type: " + selectedMessageType.toString());
+				MessageType newMessageType = MessageType.values()[cbox_cmdType.getSelectedIndex()];
+				if(newMessageType != selectedMessageType)
+				{
+					selectedMessageType = newMessageType;
+					selectedMessage = MessageFactory.makeMessage(selectedMessageType);
+					updateMessageLabels();
+					System.out.println("Selected a Message of Type: " + selectedMessageType.toString());
+				}
 			}
 		});
 		cbox_cmdType.setBounds(160, 5, 225, 31);
@@ -360,6 +373,9 @@ public class GUI extends JFrame{
 		btnAddToEnd.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				messageQueue.addAtBack(selectedMessage);
+				updateMessageQueueList(messageList);
+				selectedMessage = MessageFactory.makeMessage(selectedMessageType);
 			}
 		});
 		btnAddToEnd.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -367,15 +383,35 @@ public class GUI extends JFrame{
 		panel_5.add(btnAddToEnd);
 		
 		JButton btnAddAtPosition = new JButton("Add at Position");
+		btnAddAtPosition.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) 
+			{
+				int messageIndex;
+				try
+				{
+					messageIndex = Integer.parseInt(tbox_messageAddPosition.getText());
+					messageQueue.addAtPosition(selectedMessage, messageIndex);
+					
+				}
+				catch(Exception exception)
+				{
+					System.out.println("Could not add message at selected index, added to back of queue.");
+					messageQueue.addAtBack(selectedMessage);
+				}
+				updateMessageQueueList(messageList);
+				selectedMessage = MessageFactory.makeMessage(selectedMessageType);
+			}
+		});
 		btnAddAtPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnAddAtPosition.setBounds(10, 446, 247, 58);
 		panel_5.add(btnAddAtPosition);
 		
-		textField_6 = new JTextField();
-		textField_6.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		textField_6.setBounds(267, 446, 118, 58);
-		panel_5.add(textField_6);
-		textField_6.setColumns(10);
+		tbox_messageAddPosition = new JTextField();
+		tbox_messageAddPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		tbox_messageAddPosition.setBounds(267, 446, 118, 58);
+		panel_5.add(tbox_messageAddPosition);
+		tbox_messageAddPosition.setColumns(10);
 		
 		JPanel panel_4 = new JPanel();
 		tabbedPane.addTab("Misc", null, panel_4, null);
@@ -405,11 +441,17 @@ public class GUI extends JFrame{
 		
 	}
 	
-	private void updateMessageQueueList()
+	private void updateMessageQueueList(JList<String> messageList)
 	{
+		model.clear();
 		for(int i = 0; i < messageQueue.getSize(); i++)
 		{
 			Message msg = messageQueue.peekAtIndex(i);
+			String listItem = "";
+			listItem += "(" + i + ") ";
+			listItem += msg.getType().toString() + ": ";
+			listItem += msg.getMessageString();
+			model.addElement(listItem);
 			
 		}
 	}
