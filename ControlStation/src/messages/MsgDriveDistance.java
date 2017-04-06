@@ -5,6 +5,12 @@ import common.MessageType;
 
 public class MsgDriveDistance extends AbsMessage 
 {
+	public MsgDriveDistance()
+	{
+		this(0.0, 0.0);
+	}
+	
+	
 	public MsgDriveDistance(double distance, double speed)
 	{
 		super();
@@ -14,6 +20,8 @@ public class MsgDriveDistance extends AbsMessage
 		
 		setDataByIndex(0, distance);
 		setDataByIndex(1, speed);
+		setDataTagByIndex(0, "Distance");
+		setDataTagByIndex(1, "Speed");
 		
 	}
 }

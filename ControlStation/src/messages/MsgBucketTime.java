@@ -5,6 +5,11 @@ import common.MessageType;
 
 public class MsgBucketTime extends AbsMessage
 {
+	public MsgBucketTime()
+	{
+		this(0.0, 0.0);
+	}
+	
 	public MsgBucketTime(double time, double speed)
 	{
 		super();
@@ -13,6 +18,8 @@ public class MsgBucketTime extends AbsMessage
 		setInfo("Moving bucket for " + time + "s at speed:" + speed + "\n");
 		
 		setDataByIndex(0, time);
-		setDataByIndex(1, speed);	
+		setDataByIndex(1, speed);
+		setDataTagByIndex(0, "Time");
+		setDataTagByIndex(1, "Speed");
 	}
 }

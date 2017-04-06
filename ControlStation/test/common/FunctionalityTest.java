@@ -12,14 +12,14 @@ public class FunctionalityTest
 		MessageQueue mq = new MessageQueue();
 		NetworkServer server = new NetworkServer(port, mq);
 
-		//mq.add(new MsgDriveTime(10.0, 0.0));
-		//mq.add(new MsgDriveDistance(20.0, 5.0));
+		//mq.add(new MsgDriveTime(5.0, -0.50));
+		//mq.add(new MsgDriveDistance(10.0, 5.0));
 		//mq.add(new MsgMotorValues());
-//		mq.add(new MsgDriveTime(5.0, 0.25));
-//		mq.add(new MsgBucketTime(5.0, 0.5));
-//		mq.add(new MsgDriveTime(10.0, 0.0));
+		//mq.add(new MsgDriveTime(5.0, -0.25));
+		//mq.add(new MsgBucketTime(5.0, 0.5));
+		//mq.add(new MsgDriveTime(10.0, 0.0));
 		//mq.add(new MsgBucketPosition(250.0, 0.25));
-//		mq.add(new MsgDriveTime(10.0, 0.0));
+		//mq.add(new MsgDriveTime(10.0, 0.0));
 		//mq.add(new MsgRotateTime(10.0, 0.50));
 		//mq.add(new MsgRotateTime(10.0, 0.00));
 		//mq.add(new MsgRotateTime(10.0, -0.50));
@@ -34,7 +34,7 @@ public class FunctionalityTest
 		//mq.add(new MsgDepthTime(6.0, 0.05));
 		//mq.add(new MsgBucketTime(10, 1.0));
 		//mq.add(new MsgStop());
-		mq.add(new MsgMotorValues());
+		//mq.add(new MsgMotorValues());
 		
 		
 		server.startServer();

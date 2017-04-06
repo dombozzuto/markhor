@@ -20,6 +20,11 @@ public class MessageQueue
 		return !isEmpty() ? queue.get(0) : null;
 	}
 	
+	public Message peekAtIndex(int i)
+	{
+		return !isEmpty() ? queue.get(i) : null;
+	}
+	
 	public Message pop()
 	{
 		return !isEmpty() ? queue.remove(0) : null;

@@ -11,6 +11,7 @@ public abstract class AbsMessage implements Message
 	private int messageNumber;
 	private String info;
 	private double[] data = new double[N_DATA];
+	private String[] dataTags = new String[N_DATA];
 	
 	
 	public AbsMessage()
@@ -49,9 +50,30 @@ public abstract class AbsMessage implements Message
 		return 0.0;
 	}
 	
+	public void setDataTagByIndex(int index, String tag)
+	{
+		if(index >= 0 && index < N_DATA)
+		{
+			this.dataTags[index] = tag;
+		}
+	}
+	
+	public String getDataTagByIndex(int index)
+	{
+		if(index >= 0 && index < N_DATA)
+		{
+			return this.dataTags[index];
+		}
+		return "";
+	}
+	
 	public void initializeMessage()
 	{
 		messageNumber = messageCount++;
+		for(int i = 0; i < N_DATA; i++)
+		{
+			dataTags[i] = "N/A";
+		}
 	}
 	
 	public static void resetMessageCount()

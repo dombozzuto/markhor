@@ -5,6 +5,12 @@ import common.MessageType;
 
 public class MsgBucketPosition extends AbsMessage 
 {
+	
+	public MsgBucketPosition()
+	{
+		this(0.0, 0.0);
+	}
+	
 	public MsgBucketPosition(double position, double speed)
 	{
 		super();
@@ -14,6 +20,10 @@ public class MsgBucketPosition extends AbsMessage
 		
 		setDataByIndex(0, position);
 		setDataByIndex(1, speed);
-		
+		setDataTagByIndex(0, "Position");
+		setDataTagByIndex(1, "Speed");
 	}
+	
+
+
 }

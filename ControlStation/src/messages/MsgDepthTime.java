@@ -5,6 +5,11 @@ import common.MessageType;
 
 public class MsgDepthTime extends AbsMessage
 {
+	public MsgDepthTime()
+	{
+		this(0.0, 0.0);
+	}
+	
 	public MsgDepthTime(double time, double speed)
 	{
 		super();
@@ -14,5 +19,7 @@ public class MsgDepthTime extends AbsMessage
 		
 		setDataByIndex(0, time);
 		setDataByIndex(1, speed);	
+		setDataTagByIndex(0, "Time");
+		setDataTagByIndex(1, "Speed");
 	}
 }

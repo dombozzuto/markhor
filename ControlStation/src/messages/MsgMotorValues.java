@@ -13,7 +13,6 @@ public class MsgMotorValues extends AbsMessage
 		setType(MessageType.MSG_MOTOR_VALUES);
 		setSize(5);
 		setInfo("Writing Values from Gamepad\n");
-		
 	}
 	
 	@Override
@@ -30,6 +29,11 @@ public class MsgMotorValues extends AbsMessage
 		setDataByIndex(2, scoopMotorVal);
 		setDataByIndex(3, depthMotorVal);
 		setDataByIndex(4, winchMotorVal);
+		setDataTagByIndex(0, "Left Motor");
+		setDataTagByIndex(1, "Right Motor");
+		setDataTagByIndex(2, "Scoop Motor");
+		setDataTagByIndex(3, "Depth Motor");
+		setDataTagByIndex(4, "Winch Motor");
 		String messageString = "<";
 		messageString += getType().ordinal() + "|";
 		messageString += getMessageNumber();
