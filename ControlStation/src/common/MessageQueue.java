@@ -45,6 +45,11 @@ public class MessageQueue
 		queue.add(0, msg);
 	}
 	
+	public void removeAtIndex(int i)
+	{
+		queue.remove(i);
+	}
+	
 	public void clear()
 	{
 		queue = new ArrayList<Message>();

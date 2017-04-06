@@ -39,8 +39,6 @@ import java.awt.event.MouseEvent;
 public class GUI extends JFrame{
 	
 	private JFrame frame;
-	
-	private JTextField txtSupposedToBe;
 	private JTextField tbox_messageAddPosition;
 	private JTextField tbox_data0;
 	private JTextField tbox_data1;
@@ -57,6 +55,56 @@ public class GUI extends JFrame{
 	private MessageType selectedMessageType = MessageType.MSG_STOP;
 	private Message selectedMessage = new MsgStop();
 	private JLabel[] messageLabels = new JLabel[8];
+	private JTextField tbox_leftMotorID;
+	private JTextField tbox_leftMotorCurrent;
+	private JTextField tbox_leftMotorVoltage;
+	private JTextField tbox_leftMotorTemperature;
+	private JTextField tbox_leftMotorMode;
+	private JTextField tbox_leftMotorSetpoint;
+	private JTextField tbox_leftMotorPosition;
+	private JTextField tbox_leftMotorSpeed;
+	private JTextField tbox_leftMotorFLimit;
+	private JTextField tbox_leftMotorRLimit;
+	private JTextField tbox_rightMotorID;
+	private JTextField tbox_rightMotorCurrent;
+	private JTextField tbox_rightMotorVoltage;
+	private JTextField tbox_rightMotorTemperature;
+	private JTextField tbox_rightMotorMode;
+	private JTextField tbox_rightMotorSetpoint;
+	private JTextField tbox_rightMotorPosition;
+	private JTextField tbox_rightMotorSpeed;
+	private JTextField tbox_rightMotorFLimit;
+	private JTextField tbox_rightMotorRLimit;
+	private JTextField tbox_scoopMotorID;
+	private JTextField tbox_scoopMotorCurrent;
+	private JTextField tbox_scoopMotorVoltage;
+	private JTextField tbox_scoopMotorTemperature;
+	private JTextField tbox_scoopMotorMode;
+	private JTextField tbox_scoopMotorSetpoint;
+	private JTextField tbox_scoopMotorPosition;
+	private JTextField tbox_scoopMotorSpeed;
+	private JTextField tbox_scoopMotorFLimit;
+	private JTextField tbox_scoopMotorRLimit;
+	private JTextField tbox_depthMotorID;
+	private JTextField tbox_depthMotorCurrent;
+	private JTextField tbox_depthMotorVoltage;
+	private JTextField tbox_depthMotorTemperature;
+	private JTextField tbox_depthMotorMode;
+	private JTextField tbox_depthMotorSetpoint;
+	private JTextField tbox_depthMotorPosition;
+	private JTextField tbox_depthMotorSpeed;
+	private JTextField tbox_depthMotorFLimit;
+	private JTextField tbox_depthMotorRLimit;
+	private JTextField tbox_winchMotorID;
+	private JTextField tbox_winchMotorCurrent;
+	private JTextField tbox_winchMotorVoltage;
+	private JTextField tbox_winchMotorTemperature;
+	private JTextField tbox_winchMotorMode;
+	private JTextField tbox_winchMotorSetpoint;
+	private JTextField tbox_winchMotorPosition;
+	private JTextField tbox_winchMotorSpeed;
+	private JTextField tbox_winchMotorFLimit;
+	private JTextField tbox_winchMotorRLimit;
 	
 	public static void main(String[] args) 
 	{
@@ -168,6 +216,25 @@ public class GUI extends JFrame{
 		tabbedPane.addTab("Main", null, panel_2, null);
 		
 		JButton btnRemoveSelected = new JButton("Remove");
+		btnRemoveSelected.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				int removalIndex;
+				try
+				{
+					removalIndex = messageList.getSelectedIndex();
+					messageQueue.removeAtIndex(removalIndex);
+					updateMessageQueueList(messageList);
+				}
+				catch(Exception exception)
+				{
+					System.out.println("Failed to remove message.");
+				}
+				
+				
+			}
+		});
 		btnRemoveSelected.setBackground(new Color(0, 0, 128));
 		btnRemoveSelected.setForeground(new Color(255, 255, 255));
 		btnRemoveSelected.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -413,28 +480,580 @@ public class GUI extends JFrame{
 		panel_5.add(tbox_messageAddPosition);
 		tbox_messageAddPosition.setColumns(10);
 		
-		JPanel panel_4 = new JPanel();
-		tabbedPane.addTab("Misc", null, panel_4, null);
+		JPanel panel_robotData = new JPanel();
+		tabbedPane.addTab("Robot Data", null, panel_robotData, null);
 		
-		txtSupposedToBe = new JTextField();
-		txtSupposedToBe.setText("Supposed to be pictures of pizza");
-		txtSupposedToBe.setColumns(10);
-		GroupLayout gl_panel_4 = new GroupLayout(panel_4);
-		gl_panel_4.setHorizontalGroup(
-			gl_panel_4.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panel_4.createSequentialGroup()
+		JPanel panel_leftMotorData = new JPanel();
+		
+		JPanel panel_rightMotorData = new JPanel();
+		panel_rightMotorData.setLayout(null);
+		
+		JLabel lbl_rightMotorID = new JLabel("Device ID:");
+		lbl_rightMotorID.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorID.setBounds(10, 48, 88, 14);
+		panel_rightMotorData.add(lbl_rightMotorID);
+		
+		tbox_rightMotorID = new JTextField();
+		tbox_rightMotorID.setColumns(10);
+		tbox_rightMotorID.setBounds(108, 48, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorID);
+		
+		JLabel lbl_rightMotorCurrent = new JLabel("Current (A):");
+		lbl_rightMotorCurrent.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorCurrent.setBounds(10, 76, 88, 14);
+		panel_rightMotorData.add(lbl_rightMotorCurrent);
+		
+		tbox_rightMotorCurrent = new JTextField();
+		tbox_rightMotorCurrent.setColumns(10);
+		tbox_rightMotorCurrent.setBounds(108, 73, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorCurrent);
+		
+		tbox_rightMotorVoltage = new JTextField();
+		tbox_rightMotorVoltage.setColumns(10);
+		tbox_rightMotorVoltage.setBounds(108, 126, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorVoltage);
+		
+		JLabel lbl_rightMotorVoltage = new JLabel("Voltage (V):");
+		lbl_rightMotorVoltage.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorVoltage.setBounds(10, 126, 88, 14);
+		panel_rightMotorData.add(lbl_rightMotorVoltage);
+		
+		JLabel lbl_rightMotorTemperature = new JLabel("Temperature (C):");
+		lbl_rightMotorTemperature.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorTemperature.setBounds(0, 101, 98, 14);
+		panel_rightMotorData.add(lbl_rightMotorTemperature);
+		
+		tbox_rightMotorTemperature = new JTextField();
+		tbox_rightMotorTemperature.setColumns(10);
+		tbox_rightMotorTemperature.setBounds(108, 101, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorTemperature);
+		
+		tbox_rightMotorMode = new JTextField();
+		tbox_rightMotorMode.setColumns(10);
+		tbox_rightMotorMode.setBounds(261, 126, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorMode);
+		
+		JLabel lbl_rightMotorMode = new JLabel("Mode:");
+		lbl_rightMotorMode.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorMode.setBounds(179, 126, 72, 14);
+		panel_rightMotorData.add(lbl_rightMotorMode);
+		
+		JLabel lbl_rightMotorSetpoint = new JLabel("Setpoint:");
+		lbl_rightMotorSetpoint.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorSetpoint.setBounds(179, 101, 72, 14);
+		panel_rightMotorData.add(lbl_rightMotorSetpoint);
+		
+		tbox_rightMotorSetpoint = new JTextField();
+		tbox_rightMotorSetpoint.setColumns(10);
+		tbox_rightMotorSetpoint.setBounds(261, 101, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorSetpoint);
+		
+		tbox_rightMotorPosition = new JTextField();
+		tbox_rightMotorPosition.setColumns(10);
+		tbox_rightMotorPosition.setBounds(261, 73, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorPosition);
+		
+		JLabel lbl_rightMotorPosition = new JLabel("Position:");
+		lbl_rightMotorPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorPosition.setBounds(179, 76, 72, 14);
+		panel_rightMotorData.add(lbl_rightMotorPosition);
+		
+		JLabel lbl_rightMotorSpeed = new JLabel("Speed:");
+		lbl_rightMotorSpeed.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorSpeed.setBounds(179, 48, 72, 14);
+		panel_rightMotorData.add(lbl_rightMotorSpeed);
+		
+		tbox_rightMotorSpeed = new JTextField();
+		tbox_rightMotorSpeed.setColumns(10);
+		tbox_rightMotorSpeed.setBounds(261, 48, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorSpeed);
+		
+		JLabel lbl_rightMotorFLimit = new JLabel("F. Limit?:");
+		lbl_rightMotorFLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorFLimit.setBounds(10, 151, 88, 14);
+		panel_rightMotorData.add(lbl_rightMotorFLimit);
+		
+		tbox_rightMotorFLimit = new JTextField();
+		tbox_rightMotorFLimit.setColumns(10);
+		tbox_rightMotorFLimit.setBounds(108, 151, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorFLimit);
+		
+		JLabel lbl_rightMotorRLimit = new JLabel("R. Limit?:");
+		lbl_rightMotorRLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_rightMotorRLimit.setBounds(179, 151, 72, 14);
+		panel_rightMotorData.add(lbl_rightMotorRLimit);
+		
+		tbox_rightMotorRLimit = new JTextField();
+		tbox_rightMotorRLimit.setColumns(10);
+		tbox_rightMotorRLimit.setBounds(261, 151, 86, 20);
+		panel_rightMotorData.add(tbox_rightMotorRLimit);
+		
+		JLabel lbl_rightDriveMotor = new JLabel("Right Drive Motor");
+		lbl_rightDriveMotor.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_rightDriveMotor.setBounds(10, 11, 337, 26);
+		panel_rightMotorData.add(lbl_rightDriveMotor);
+		
+		JPanel panel_scoopMotorData = new JPanel();
+		panel_scoopMotorData.setLayout(null);
+		
+		JLabel lbl_scoopMotorID = new JLabel("Device ID:");
+		lbl_scoopMotorID.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorID.setBounds(10, 48, 88, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorID);
+		
+		tbox_scoopMotorID = new JTextField();
+		tbox_scoopMotorID.setColumns(10);
+		tbox_scoopMotorID.setBounds(108, 48, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorID);
+		
+		JLabel lbl_scoopMotorCurrent = new JLabel("Current (A):");
+		lbl_scoopMotorCurrent.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorCurrent.setBounds(10, 76, 88, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorCurrent);
+		
+		tbox_scoopMotorCurrent = new JTextField();
+		tbox_scoopMotorCurrent.setColumns(10);
+		tbox_scoopMotorCurrent.setBounds(108, 73, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorCurrent);
+		
+		tbox_scoopMotorVoltage = new JTextField();
+		tbox_scoopMotorVoltage.setColumns(10);
+		tbox_scoopMotorVoltage.setBounds(108, 126, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorVoltage);
+		
+		JLabel lbl_scoopMotorVoltage = new JLabel("Voltage (V):");
+		lbl_scoopMotorVoltage.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorVoltage.setBounds(10, 126, 88, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorVoltage);
+		
+		JLabel lbl_scoopMotorTemperature = new JLabel("Temperature (C):");
+		lbl_scoopMotorTemperature.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorTemperature.setBounds(-17, 101, 115, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorTemperature);
+		
+		tbox_scoopMotorTemperature = new JTextField();
+		tbox_scoopMotorTemperature.setColumns(10);
+		tbox_scoopMotorTemperature.setBounds(108, 101, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorTemperature);
+		
+		tbox_scoopMotorMode = new JTextField();
+		tbox_scoopMotorMode.setColumns(10);
+		tbox_scoopMotorMode.setBounds(261, 126, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorMode);
+		
+		JLabel lbl_scoopMotorMode = new JLabel("Mode:");
+		lbl_scoopMotorMode.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorMode.setBounds(179, 126, 72, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorMode);
+		
+		JLabel lbl_scoopMotorSetpoint = new JLabel("Setpoint:");
+		lbl_scoopMotorSetpoint.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorSetpoint.setBounds(179, 101, 72, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorSetpoint);
+		
+		tbox_scoopMotorSetpoint = new JTextField();
+		tbox_scoopMotorSetpoint.setColumns(10);
+		tbox_scoopMotorSetpoint.setBounds(261, 101, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorSetpoint);
+		
+		tbox_scoopMotorPosition = new JTextField();
+		tbox_scoopMotorPosition.setColumns(10);
+		tbox_scoopMotorPosition.setBounds(261, 73, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorPosition);
+		
+		JLabel lbl_scoopMotorPosition = new JLabel("Position:");
+		lbl_scoopMotorPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorPosition.setBounds(179, 76, 72, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorPosition);
+		
+		JLabel lbl_scoopMotorSpeed = new JLabel("Speed:");
+		lbl_scoopMotorSpeed.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorSpeed.setBounds(179, 48, 72, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorSpeed);
+		
+		tbox_scoopMotorSpeed = new JTextField();
+		tbox_scoopMotorSpeed.setColumns(10);
+		tbox_scoopMotorSpeed.setBounds(261, 48, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorSpeed);
+		
+		JLabel lbl_scoopMotorFLimit = new JLabel("F. Limit?:");
+		lbl_scoopMotorFLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorFLimit.setBounds(10, 151, 88, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorFLimit);
+		
+		tbox_scoopMotorFLimit = new JTextField();
+		tbox_scoopMotorFLimit.setColumns(10);
+		tbox_scoopMotorFLimit.setBounds(108, 151, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorFLimit);
+		
+		JLabel lbl_scoopMotorRLimit = new JLabel("R. Limit?:");
+		lbl_scoopMotorRLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_scoopMotorRLimit.setBounds(179, 151, 72, 14);
+		panel_scoopMotorData.add(lbl_scoopMotorRLimit);
+		
+		tbox_scoopMotorRLimit = new JTextField();
+		tbox_scoopMotorRLimit.setColumns(10);
+		tbox_scoopMotorRLimit.setBounds(261, 151, 86, 20);
+		panel_scoopMotorData.add(tbox_scoopMotorRLimit);
+		
+		JLabel lbl_scoopMotor = new JLabel("Scoop Motor");
+		lbl_scoopMotor.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_scoopMotor.setBounds(10, 11, 337, 26);
+		panel_scoopMotorData.add(lbl_scoopMotor);
+		
+		JPanel panel_depthMotorData = new JPanel();
+		panel_depthMotorData.setLayout(null);
+		
+		JLabel lbl_depthMotorID = new JLabel("Device ID:");
+		lbl_depthMotorID.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorID.setBounds(10, 48, 88, 14);
+		panel_depthMotorData.add(lbl_depthMotorID);
+		
+		tbox_depthMotorID = new JTextField();
+		tbox_depthMotorID.setColumns(10);
+		tbox_depthMotorID.setBounds(108, 48, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorID);
+		
+		JLabel lbl_depthMotorCurrent = new JLabel("Current (A):");
+		lbl_depthMotorCurrent.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorCurrent.setBounds(10, 76, 88, 14);
+		panel_depthMotorData.add(lbl_depthMotorCurrent);
+		
+		tbox_depthMotorCurrent = new JTextField();
+		tbox_depthMotorCurrent.setColumns(10);
+		tbox_depthMotorCurrent.setBounds(108, 73, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorCurrent);
+		
+		tbox_depthMotorVoltage = new JTextField();
+		tbox_depthMotorVoltage.setColumns(10);
+		tbox_depthMotorVoltage.setBounds(108, 126, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorVoltage);
+		
+		JLabel lbl_depthMotorVoltage = new JLabel("Voltage (V):");
+		lbl_depthMotorVoltage.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorVoltage.setBounds(10, 126, 88, 14);
+		panel_depthMotorData.add(lbl_depthMotorVoltage);
+		
+		JLabel lbl_depthMotorTemperature = new JLabel("Temperature (C):");
+		lbl_depthMotorTemperature.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorTemperature.setBounds(0, 101, 98, 14);
+		panel_depthMotorData.add(lbl_depthMotorTemperature);
+		
+		tbox_depthMotorTemperature = new JTextField();
+		tbox_depthMotorTemperature.setColumns(10);
+		tbox_depthMotorTemperature.setBounds(108, 101, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorTemperature);
+		
+		tbox_depthMotorMode = new JTextField();
+		tbox_depthMotorMode.setColumns(10);
+		tbox_depthMotorMode.setBounds(261, 126, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorMode);
+		
+		JLabel lbl_depthMotorMode = new JLabel("Mode:");
+		lbl_depthMotorMode.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorMode.setBounds(179, 126, 72, 14);
+		panel_depthMotorData.add(lbl_depthMotorMode);
+		
+		JLabel lbl_depthMotorSetpoint = new JLabel("Setpoint:");
+		lbl_depthMotorSetpoint.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorSetpoint.setBounds(179, 101, 72, 14);
+		panel_depthMotorData.add(lbl_depthMotorSetpoint);
+		
+		tbox_depthMotorSetpoint = new JTextField();
+		tbox_depthMotorSetpoint.setColumns(10);
+		tbox_depthMotorSetpoint.setBounds(261, 101, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorSetpoint);
+		
+		tbox_depthMotorPosition = new JTextField();
+		tbox_depthMotorPosition.setColumns(10);
+		tbox_depthMotorPosition.setBounds(261, 73, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorPosition);
+		
+		JLabel lbl_depthMotorPosition = new JLabel("Position:");
+		lbl_depthMotorPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorPosition.setBounds(179, 76, 72, 14);
+		panel_depthMotorData.add(lbl_depthMotorPosition);
+		
+		JLabel lbl_depthMotorSpeed = new JLabel("Speed:");
+		lbl_depthMotorSpeed.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorSpeed.setBounds(179, 48, 72, 14);
+		panel_depthMotorData.add(lbl_depthMotorSpeed);
+		
+		tbox_depthMotorSpeed = new JTextField();
+		tbox_depthMotorSpeed.setColumns(10);
+		tbox_depthMotorSpeed.setBounds(261, 48, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorSpeed);
+		
+		JLabel lbl_depthMotorFLimit = new JLabel("F. Limit?:");
+		lbl_depthMotorFLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorFLimit.setBounds(10, 151, 88, 14);
+		panel_depthMotorData.add(lbl_depthMotorFLimit);
+		
+		tbox_depthMotorFLimit = new JTextField();
+		tbox_depthMotorFLimit.setColumns(10);
+		tbox_depthMotorFLimit.setBounds(108, 151, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorFLimit);
+		
+		JLabel lbl_depthMotorRLimit = new JLabel("R. Limit?:");
+		lbl_depthMotorRLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_depthMotorRLimit.setBounds(179, 151, 72, 14);
+		panel_depthMotorData.add(lbl_depthMotorRLimit);
+		
+		tbox_depthMotorRLimit = new JTextField();
+		tbox_depthMotorRLimit.setColumns(10);
+		tbox_depthMotorRLimit.setBounds(261, 151, 86, 20);
+		panel_depthMotorData.add(tbox_depthMotorRLimit);
+		
+		JLabel lbl_depthMotor = new JLabel("Depth Motor");
+		lbl_depthMotor.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_depthMotor.setBounds(10, 11, 337, 26);
+		panel_depthMotorData.add(lbl_depthMotor);
+		
+		JPanel panel_winchMotorData = new JPanel();
+		panel_winchMotorData.setLayout(null);
+		
+		JLabel lbl_winchMotorID = new JLabel("Device ID:");
+		lbl_winchMotorID.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorID.setBounds(10, 48, 88, 14);
+		panel_winchMotorData.add(lbl_winchMotorID);
+		
+		tbox_winchMotorID = new JTextField();
+		tbox_winchMotorID.setColumns(10);
+		tbox_winchMotorID.setBounds(108, 48, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorID);
+		
+		JLabel lbl_winchMotorCurrent = new JLabel("Current (A):");
+		lbl_winchMotorCurrent.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorCurrent.setBounds(10, 76, 88, 14);
+		panel_winchMotorData.add(lbl_winchMotorCurrent);
+		
+		tbox_winchMotorCurrent = new JTextField();
+		tbox_winchMotorCurrent.setColumns(10);
+		tbox_winchMotorCurrent.setBounds(108, 73, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorCurrent);
+		
+		tbox_winchMotorVoltage = new JTextField();
+		tbox_winchMotorVoltage.setColumns(10);
+		tbox_winchMotorVoltage.setBounds(108, 126, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorVoltage);
+		
+		JLabel lbl_winchMotorVoltage = new JLabel("Voltage (V):");
+		lbl_winchMotorVoltage.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorVoltage.setBounds(10, 126, 88, 14);
+		panel_winchMotorData.add(lbl_winchMotorVoltage);
+		
+		JLabel lbl_winchMotorTemperature = new JLabel("Temperature (C):");
+		lbl_winchMotorTemperature.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorTemperature.setBounds(0, 101, 98, 14);
+		panel_winchMotorData.add(lbl_winchMotorTemperature);
+		
+		tbox_winchMotorTemperature = new JTextField();
+		tbox_winchMotorTemperature.setColumns(10);
+		tbox_winchMotorTemperature.setBounds(108, 101, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorTemperature);
+		
+		tbox_winchMotorMode = new JTextField();
+		tbox_winchMotorMode.setColumns(10);
+		tbox_winchMotorMode.setBounds(261, 126, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorMode);
+		
+		JLabel lbl_winchMotorMode = new JLabel("Mode:");
+		lbl_winchMotorMode.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorMode.setBounds(179, 126, 72, 14);
+		panel_winchMotorData.add(lbl_winchMotorMode);
+		
+		JLabel lbl_winchMotorSetpoint = new JLabel("Setpoint:");
+		lbl_winchMotorSetpoint.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorSetpoint.setBounds(179, 101, 72, 14);
+		panel_winchMotorData.add(lbl_winchMotorSetpoint);
+		
+		tbox_winchMotorSetpoint = new JTextField();
+		tbox_winchMotorSetpoint.setColumns(10);
+		tbox_winchMotorSetpoint.setBounds(261, 101, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorSetpoint);
+		
+		tbox_winchMotorPosition = new JTextField();
+		tbox_winchMotorPosition.setColumns(10);
+		tbox_winchMotorPosition.setBounds(261, 73, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorPosition);
+		
+		JLabel lbl_winchMotorPosition = new JLabel("Position:");
+		lbl_winchMotorPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorPosition.setBounds(179, 76, 72, 14);
+		panel_winchMotorData.add(lbl_winchMotorPosition);
+		
+		JLabel lbl_winchMotorSpeed = new JLabel("Speed:");
+		lbl_winchMotorSpeed.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorSpeed.setBounds(179, 48, 72, 14);
+		panel_winchMotorData.add(lbl_winchMotorSpeed);
+		
+		tbox_winchMotorSpeed = new JTextField();
+		tbox_winchMotorSpeed.setColumns(10);
+		tbox_winchMotorSpeed.setBounds(261, 48, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorSpeed);
+		
+		JLabel lbl_winchMotorFLimit = new JLabel("F. Limit?:");
+		lbl_winchMotorFLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorFLimit.setBounds(10, 151, 88, 14);
+		panel_winchMotorData.add(lbl_winchMotorFLimit);
+		
+		tbox_winchMotorFLimit = new JTextField();
+		tbox_winchMotorFLimit.setColumns(10);
+		tbox_winchMotorFLimit.setBounds(108, 151, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorFLimit);
+		
+		JLabel lbl_winchMotorRLimit = new JLabel("R. Limit?:");
+		lbl_winchMotorRLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_winchMotorRLimit.setBounds(179, 151, 72, 14);
+		panel_winchMotorData.add(lbl_winchMotorRLimit);
+		
+		tbox_winchMotorRLimit = new JTextField();
+		tbox_winchMotorRLimit.setColumns(10);
+		tbox_winchMotorRLimit.setBounds(261, 151, 86, 20);
+		panel_winchMotorData.add(tbox_winchMotorRLimit);
+		
+		JLabel lbl_winchMotor = new JLabel("Winch Motor");
+		lbl_winchMotor.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_winchMotor.setBounds(10, 11, 337, 26);
+		panel_winchMotorData.add(lbl_winchMotor);
+		GroupLayout gl_panel_robotData = new GroupLayout(panel_robotData);
+		gl_panel_robotData.setHorizontalGroup(
+			gl_panel_robotData.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_robotData.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(txtSupposedToBe, GroupLayout.PREFERRED_SIZE, 617, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(155, Short.MAX_VALUE))
+					.addGroup(gl_panel_robotData.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panel_robotData.createSequentialGroup()
+							.addComponent(panel_leftMotorData, GroupLayout.PREFERRED_SIZE, 360, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(panel_rightMotorData, GroupLayout.PREFERRED_SIZE, 360, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panel_robotData.createSequentialGroup()
+							.addComponent(panel_scoopMotorData, GroupLayout.PREFERRED_SIZE, 360, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(panel_depthMotorData, GroupLayout.PREFERRED_SIZE, 360, GroupLayout.PREFERRED_SIZE))
+						.addComponent(panel_winchMotorData, GroupLayout.PREFERRED_SIZE, 360, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(46, Short.MAX_VALUE))
 		);
-		gl_panel_4.setVerticalGroup(
-			gl_panel_4.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panel_4.createSequentialGroup()
+		gl_panel_robotData.setVerticalGroup(
+			gl_panel_robotData.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_robotData.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(txtSupposedToBe, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(535, Short.MAX_VALUE))
+					.addGroup(gl_panel_robotData.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_rightMotorData, GroupLayout.PREFERRED_SIZE, 182, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_leftMotorData, GroupLayout.PREFERRED_SIZE, 182, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel_robotData.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_scoopMotorData, GroupLayout.PREFERRED_SIZE, 182, GroupLayout.PREFERRED_SIZE)
+						.addComponent(panel_depthMotorData, GroupLayout.PREFERRED_SIZE, 182, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(panel_winchMotorData, GroupLayout.PREFERRED_SIZE, 182, GroupLayout.PREFERRED_SIZE))
 		);
-		panel_4.setLayout(gl_panel_4);
+		panel_leftMotorData.setLayout(null);
+		
+		JLabel lbl_leftMotorID = new JLabel("Device ID:");
+		lbl_leftMotorID.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorID.setBounds(10, 54, 88, 14);
+		panel_leftMotorData.add(lbl_leftMotorID);
+		
+		tbox_leftMotorID = new JTextField();
+		tbox_leftMotorID.setBounds(108, 48, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorID);
+		tbox_leftMotorID.setColumns(10);
+		
+		JLabel lbl_leftMotorCurrent = new JLabel("Current (A):");
+		lbl_leftMotorCurrent.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorCurrent.setBounds(10, 76, 88, 14);
+		panel_leftMotorData.add(lbl_leftMotorCurrent);
+		
+		tbox_leftMotorCurrent = new JTextField();
+		tbox_leftMotorCurrent.setColumns(10);
+		tbox_leftMotorCurrent.setBounds(108, 73, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorCurrent);
+		
+		tbox_leftMotorVoltage = new JTextField();
+		tbox_leftMotorVoltage.setColumns(10);
+		tbox_leftMotorVoltage.setBounds(108, 126, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorVoltage);
+		
+		JLabel leftMotorVoltage = new JLabel("Voltage (V):");
+		leftMotorVoltage.setHorizontalAlignment(SwingConstants.TRAILING);
+		leftMotorVoltage.setBounds(10, 126, 88, 14);
+		panel_leftMotorData.add(leftMotorVoltage);
+		
+		JLabel lbl_leftMotorTemperature = new JLabel("Temperature (C):");
+		lbl_leftMotorTemperature.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorTemperature.setBounds(-11, 101, 109, 14);
+		panel_leftMotorData.add(lbl_leftMotorTemperature);
+		
+		tbox_leftMotorTemperature = new JTextField();
+		tbox_leftMotorTemperature.setColumns(10);
+		tbox_leftMotorTemperature.setBounds(108, 101, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorTemperature);
+		
+		tbox_leftMotorMode = new JTextField();
+		tbox_leftMotorMode.setColumns(10);
+		tbox_leftMotorMode.setBounds(261, 126, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorMode);
+		
+		JLabel lbl_leftMotorMode = new JLabel("Mode:");
+		lbl_leftMotorMode.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorMode.setBounds(179, 126, 72, 14);
+		panel_leftMotorData.add(lbl_leftMotorMode);
+		
+		JLabel lbl_leftMotorSetpoint = new JLabel("Setpoint:");
+		lbl_leftMotorSetpoint.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorSetpoint.setBounds(179, 101, 72, 14);
+		panel_leftMotorData.add(lbl_leftMotorSetpoint);
+		
+		tbox_leftMotorSetpoint = new JTextField();
+		tbox_leftMotorSetpoint.setColumns(10);
+		tbox_leftMotorSetpoint.setBounds(261, 101, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorSetpoint);
+		
+		tbox_leftMotorPosition = new JTextField();
+		tbox_leftMotorPosition.setColumns(10);
+		tbox_leftMotorPosition.setBounds(261, 73, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorPosition);
+		
+		JLabel lbl_leftMotorPosition = new JLabel("Position:");
+		lbl_leftMotorPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorPosition.setBounds(179, 76, 72, 14);
+		panel_leftMotorData.add(lbl_leftMotorPosition);
+		
+		JLabel lbl_leftMotorSpeed = new JLabel("Speed:");
+		lbl_leftMotorSpeed.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorSpeed.setBounds(179, 54, 72, 14);
+		panel_leftMotorData.add(lbl_leftMotorSpeed);
+		
+		tbox_leftMotorSpeed = new JTextField();
+		tbox_leftMotorSpeed.setColumns(10);
+		tbox_leftMotorSpeed.setBounds(261, 48, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorSpeed);
+		
+		JLabel lbl_leftMotorFLimit = new JLabel("F. Limit?:");
+		lbl_leftMotorFLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorFLimit.setBounds(10, 151, 88, 14);
+		panel_leftMotorData.add(lbl_leftMotorFLimit);
+		
+		tbox_leftMotorFLimit = new JTextField();
+		tbox_leftMotorFLimit.setColumns(10);
+		tbox_leftMotorFLimit.setBounds(108, 151, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorFLimit);
+		
+		JLabel lbl_leftMotorRLimit = new JLabel("R. Limit?:");
+		lbl_leftMotorRLimit.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl_leftMotorRLimit.setBounds(179, 151, 72, 14);
+		panel_leftMotorData.add(lbl_leftMotorRLimit);
+		
+		tbox_leftMotorRLimit = new JTextField();
+		tbox_leftMotorRLimit.setColumns(10);
+		tbox_leftMotorRLimit.setBounds(261, 151, 86, 20);
+		panel_leftMotorData.add(tbox_leftMotorRLimit);
+		
+		JLabel lbl_leftMotor = new JLabel("Left Drive Motor");
+		lbl_leftMotor.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_leftMotor.setBounds(10, 11, 337, 26);
+		panel_leftMotorData.add(lbl_leftMotor);
+		panel_robotData.setLayout(gl_panel_robotData);
 		
 		getContentPane().setLayout(groupLayout);
 		

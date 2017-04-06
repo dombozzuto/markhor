@@ -23,7 +23,7 @@ public class QueueTest {
 		assertNotNull(mq);
 		assertEquals(0, mq.getSize());
 		assertTrue(mq.isEmpty());
-		mq.add(new MsgStop());
+		mq.addAtBack(new MsgStop());
 		assertFalse(mq.isEmpty());
 	}
 	
@@ -31,7 +31,7 @@ public class QueueTest {
 	public void getFirstMessage()
 	{
 		Message m1 = new MsgStop();
-		mq.add(m1);
+		mq.addAtBack(m1);
 		assertEquals(1, mq.getSize());
 		assertEquals(m1, mq.peek());
 		assertEquals("<0|0>", mq.peek().getMessageString());
@@ -43,9 +43,9 @@ public class QueueTest {
 		Message m1 = new MsgStop();
 		Message m2 = new MsgDriveTime(0.0, 0.0);
 		Message m3 = new MsgDriveDistance(0.0, 0.0);
-		mq.add(m1);
-		mq.add(m2);
-		mq.add(m3);
+		mq.addAtBack(m1);
+		mq.addAtBack(m2);
+		mq.addAtBack(m3);
 		assertEquals(3, mq.getSize());
 		assertEquals(m1, mq.peek());
 		assertEquals("<0|0>", mq.pop().getMessageString());
