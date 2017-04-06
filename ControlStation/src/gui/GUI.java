@@ -180,7 +180,7 @@ public class GUI extends JFrame{
 		btnStop.setForeground(new Color(255, 255, 255));
 		btnStop.setBackground(new Color(255, 0, 0));
 		
-		JList<String> list = new JList<String>();
+		JList<String> messageList = new JList<String>();
 		
 		JButton btnStartQueue = new JButton("START");
 		btnStartQueue.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -191,7 +191,7 @@ public class GUI extends JFrame{
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(list, GroupLayout.PREFERRED_SIZE, 616, GroupLayout.PREFERRED_SIZE)
+					.addComponent(messageList, GroupLayout.PREFERRED_SIZE, 616, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
 						.addComponent(btnStop, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
@@ -205,7 +205,7 @@ public class GUI extends JFrame{
 				.addGroup(gl_panel_2.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
-						.addComponent(list, GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE)
+						.addComponent(messageList, GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE)
 						.addGroup(gl_panel_2.createSequentialGroup()
 							.addComponent(btnRemoveSelected, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
@@ -407,7 +407,11 @@ public class GUI extends JFrame{
 	
 	private void updateMessageQueueList()
 	{
-		
+		for(int i = 0; i < messageQueue.getSize(); i++)
+		{
+			Message msg = messageQueue.peekAtIndex(i);
+			
+		}
 	}
 	
 	private void setCommandComboBoxStrings(JComboBox<String> cbox)
