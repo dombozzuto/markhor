@@ -28,6 +28,7 @@ import common.MessageFactory;
 import common.MessageQueue;
 import common.MessageType;
 import messages.*;
+import network.NetworkServer;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -35,8 +36,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.Timer;
 
 public class GUI extends JFrame{
+	
+	private static MessageQueue messageQueue = new MessageQueue();
+	private NetworkServer server = new NetworkServer(11000, messageQueue);
+	private boolean runServer = false;
+	
+	private DefaultListModel<String> model = new DefaultListModel<String>();
+	private JList messageList = new JList<String>(model);
+	private MessageType selectedMessageType = MessageType.MSG_STOP;
+	private Message selectedMessage = new MsgStop();
+	private RobotData robotData = RobotData.getInstance();
+	private JLabel[] messageLabels = new JLabel[8];
 	
 	private JFrame frame;
 	private JTextField tbox_messageAddPosition;
@@ -48,13 +62,6 @@ public class GUI extends JFrame{
 	private JTextField tbox_data5;
 	private JTextField tbox_data6;
 	private JTextField tbox_data7;
-	
-	private MessageQueue messageQueue;
-	private DefaultListModel<String> model = new DefaultListModel<String>();
-	private JList messageList = new JList<String>(model);
-	private MessageType selectedMessageType = MessageType.MSG_STOP;
-	private Message selectedMessage = new MsgStop();
-	private JLabel[] messageLabels = new JLabel[8];
 	private JTextField tbox_leftMotorID;
 	private JTextField tbox_leftMotorCurrent;
 	private JTextField tbox_leftMotorVoltage;
@@ -108,13 +115,18 @@ public class GUI extends JFrame{
 	
 	public static void main(String[] args) 
 	{
-		MessageQueue messageQueue = new MessageQueue();
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		//MessageQueue messageQueue = new MessageQueue();
+		
+		EventQueue.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
 				try {
 					GUI window = new GUI(messageQueue);
 					window.setVisible(true);
-				} catch (Exception e) {
+				} 
+				catch (Exception e) 
+				{
 					e.printStackTrace();
 				}
 			}
@@ -133,6 +145,17 @@ public class GUI extends JFrame{
 		setTitle("Markhor.exe");
 		setSize(new Dimension(1600, 900));
 		setResizable(false);
+		
+		Timer SimpleTimer = new Timer(1000, new ActionListener(){
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        jLabel1.setText(SimpleDay.format(new Date()));
+		        jLabel2.setText(SimpleDate.format(new Date()));
+		        jLabel3.setText(SimpleTime.format(new Date()));
+		    }
+		});
+		SimpleTimer.start();
+		
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setMaximumSize(new Dimension(785, 32767));
@@ -254,11 +277,40 @@ public class GUI extends JFrame{
 		btnClearAll.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
 		JButton btnStop = new JButton("STOP");
+		btnStop.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				if(runServer)
+				{
+					try 
+					{
+						server.stopServer();
+					} 
+					catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+				runServer = false;
+			}
+		});
 		btnStop.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnStop.setForeground(new Color(255, 255, 255));
 		btnStop.setBackground(new Color(255, 0, 0));
 		
 		JButton btnStartQueue = new JButton("START");
+		btnStartQueue.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				if(!runServer)
+				{
+					server.startServer();
+				}
+				runServer = true;
+			}
+		});
 		btnStartQueue.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnStartQueue.setBackground(new Color(0, 128, 0));
 		btnStartQueue.setForeground(new Color(255, 255, 255));
@@ -439,7 +491,32 @@ public class GUI extends JFrame{
 		JButton btnAddToEnd = new JButton("Add to End");
 		btnAddToEnd.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				//array of pointers to text boxes so they can easily be
+				//iterated over
+				JTextField[] tboxes = new JTextField[8];
+				tboxes[0] = tbox_data0;
+				tboxes[1] = tbox_data1;
+				tboxes[2] = tbox_data2;
+				tboxes[3] = tbox_data3;
+				tboxes[4] = tbox_data4;
+				tboxes[5] = tbox_data5;
+				tboxes[6] = tbox_data6;
+				tboxes[7] = tbox_data7;
+				Double[] tboxData = new Double[8]; 
+				for(int i = 0; i < 8; i++)
+				{
+					try
+					{
+						tboxData[i] = Double.parseDouble(tboxes[i].getText());
+					}
+					catch(Exception exception) 
+					{
+						tboxData[i] = 0.0;
+					}
+					selectedMessage.setDataByIndex(i, tboxData[i]);
+				}
 				messageQueue.addAtBack(selectedMessage);
 				updateMessageQueueList(messageList);
 				selectedMessage = MessageFactory.makeMessage(selectedMessageType);
@@ -1103,6 +1180,33 @@ public class GUI extends JFrame{
 			}
 		}
 	}
+	
+	private void updateRobotDataBoxes()
+	{
+		NewRobotDataToBeRenamed robotData = NewRobotDataToBeRenamed.getInstance();
+		tbox_leftMotorID.setText((robotData.getLeftMotor().getDeviceID().toString()));
+		tbox_leftMotorCurrent.setText((robotData.getLeftMotor().getCurrent().toString()));
+		tbox_leftMotorVoltage.setText((robotData.getLeftMotor().getVoltage().toString()));
+		tbox_leftMotorTemperature.setText((robotData.getLeftMotor().getTemperature().toString()));
+		tbox_leftMotorMode.setText((robotData.getLeftMotor().getMode().toString()));
+		tbox_leftMotorSetpoint.setText((robotData.getLeftMotor().getSetpoint().toString()));
+		tbox_leftMotorPosition.setText((robotData.getLeftMotor().getPosition().toString()));
+		tbox_leftMotorSpeed.setText((robotData.getLeftMotor().getSpeed().toString()));
+		tbox_leftMotorFLimit.setText((robotData.getLeftMotor().getForwardLimit().toString()));
+		tbox_leftMotorRLimit.setText((robotData.getLeftMotor().getReverseLimit().toString()));
+		
+		tbox_rightMotorID.setText((robotData.getRightMotor().getDeviceID().toString()));
+		tbox_rightMotorCurrent.setText((robotData.getRightMotor().getCurrent().toString()));
+		tbox_rightMotorVoltage.setText((robotData.getRightMotor().getVoltage().toString()));
+		tbox_rightMotorTemperature.setText((robotData.getRightMotor().getTemperature().toString()));
+		tbox_rightMotorMode.setText((robotData.getRightMotor().getMode().toString()));
+		tbox_rightMotorSetpoint.setText((robotData.getRightMotor().getSetpoint().toString()));
+		tbox_rightMotorPosition.setText((robotData.getRightMotor().getPosition().toString()));
+		tbox_rightMotorSpeed.setText((robotData.getRightMotor().getSpeed().toString()));
+		tbox_rightMotorFLimit.setText((robotData.getRightMotor().getForwardLimit().toString()));
+		tbox_rightMotorRLimit.setText((robotData.getRightMotor().getReverseLimit().toString()));
+	}
+	
 
 	public GUI(MessageQueue messageQueue) {
 		initialize(messageQueue);

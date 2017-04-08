@@ -24,7 +24,10 @@ public class NetworkServer extends Thread
 	{
 		try
 		{
-			serverSocket = new ServerSocket(port);
+			if(serverSocket == null)
+			{
+				serverSocket = new ServerSocket(port);
+			}
 			this.start();
 		}
 		catch (IOException e)
@@ -33,10 +36,13 @@ public class NetworkServer extends Thread
 		}
 	}
 	
-	public void stopServer()
+	public void stopServer() throws IOException
 	{
 		running = false;
+		serverSocket.close();
 		this.interrupt();
+		serverSocket.close();
+		
 	}
 	
 	@Override

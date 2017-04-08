@@ -12,7 +12,7 @@ public class FunctionalityTest
 		MessageQueue mq = new MessageQueue();
 		NetworkServer server = new NetworkServer(port, mq);
 
-		//mq.add(new MsgDriveTime(5.0, -0.50));
+		mq.addAtBack(new MsgDriveTime(5.0, -0.50));
 		//mq.add(new MsgDriveDistance(10.0, 5.0));
 		//mq.add(new MsgMotorValues());
 		//mq.add(new MsgDriveTime(5.0, -0.25));

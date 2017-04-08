@@ -7,6 +7,8 @@ import common.MotorMode;
 
 public class RobotData 
 {
+	private static String messageString = "";
+	
 	private double leftMotorSetpoint = 0.0;
 	private double rightMotorSetpoint = 0.0;
 	private double scoopMotorSetpoint = 0.0;
@@ -41,6 +43,11 @@ public class RobotData
 	public static RobotData getInstance()
 	{
 		return instance;
+	}
+	
+	public static void setMostRecentMessage(String msgStr)
+	{
+		messageString = msgStr;
 	}
 	
 	public void updateValuesFromString(String messageString)
