@@ -5,16 +5,19 @@ import java.net.Socket;
 
 import common.MessageQueue;
 import gui.RobotData;
+import gui.RobotData;
 
 class RequestHandler extends Thread
 {
     private Socket socket;
     private MessageQueue queue;
+    private RobotData robotData;
     
-    RequestHandler( Socket socket , MessageQueue queue)
+    RequestHandler(Socket socket, MessageQueue queue, RobotData robotData)
     {
         this.socket = socket;
         this.queue = queue;
+        this.robotData = robotData;
     }
 
     @Override
@@ -46,9 +49,8 @@ class RequestHandler extends Thread
 			   inboundMessageStr = "Errors";
 		   }
 		   
-		
 		    System.out.println("Received: " + inboundMessageStr);
-		    RobotData.setMostRecentMessage(inboundMessageStr);
+		    robotData.updateRobotData(inboundMessageStr);
 		    
 		    if(!queue.isEmpty())
 		    {

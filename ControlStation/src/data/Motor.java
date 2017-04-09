@@ -1,5 +1,8 @@
 package data;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import common.MotorMode;
 
 /*
@@ -42,14 +45,36 @@ public class Motor
 	public Boolean getForwardLimit() {return forward_limit;}
 	public Boolean getReverseLimit() {return reverse_limit;}
 	
-	public void setDeviceID(Integer deviceID) {this.deviceID = deviceID;}
-	public void setCurrent(Double current) {this.current = current;}
-	public void setTemperature(Double temperature) {this.temperature = temperature;}
-	public void setVoltage(Double voltage) {this.voltage = voltage;}
-	public void setSpeed(Double speed) {this.speed = speed;}
-	public void setPosition(Double position) {this.position = position;}
-	public void setSetpoint(Double setpoint) {this.setpoint = setpoint;}
-	public void setMode(MotorMode mode) {this.mode = mode;}
-	public void setForwardLimit(Boolean forward_limit) {this.forward_limit = forward_limit;}
-	public void setReverseLimit(Boolean reverse_limit) {this.reverse_limit = reverse_limit;}	
+	public void updateMotorData(String motorData)
+	{
+		final String patternStr = "(\\d+):(\\-?\\d+\\.\\d+):(\\-?\\d+\\.\\d+):(\\-?\\d+\\.\\d+):(\\-?\\d+\\.\\d+):(\\-?\\d+\\.\\d+):(\\-?\\d+\\.\\d+):(\\d+):([01]):([01])";
+		Pattern pattern = Pattern.compile(patternStr);
+		Matcher m = pattern.matcher(motorData);
+		if(m.matches())
+		{
+			try
+			{
+				deviceID = Integer.parseInt(m.group(1));
+				current = Double.parseDouble(m.group(2));
+				temperature = Double.parseDouble(m.group(3));
+				voltage = Double.parseDouble(m.group(4));
+				speed = Double.parseDouble(m.group(5));
+				position = Double.parseDouble(m.group(6));
+				setpoint = Double.parseDouble(m.group(7));
+				mode = MotorMode.values()[Integer.parseInt(m.group(8))];
+				forward_limit = (Integer.parseInt(m.group(9)) == 1) ? true : false;
+				reverse_limit = (Integer.parseInt(m.group(10)) == 1) ? true : false;
+			}
+			catch(Exception e)
+			{
+				System.out.println("Update failed due to malformed message");
+			}
+		}
+		else
+		{
+			System.out.println("Update Actuals Failed!");
+		}
+		
+		
+	}
 }

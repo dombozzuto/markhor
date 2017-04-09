@@ -1,16 +1,19 @@
 package common;
 
+import java.io.IOException;
+
+import gui.RobotData;
 import messages.*;
 import network.NetworkServer;
 
 public class FunctionalityTest 
 {
-	public static void main(String [] args)
+	public static void main(String [] args) throws IOException
 	{
 		final int port = 11000;
 		
 		MessageQueue mq = new MessageQueue();
-		NetworkServer server = new NetworkServer(port, mq);
+		NetworkServer server = new NetworkServer(port, mq, new RobotData());
 
 		mq.addAtBack(new MsgDriveTime(5.0, -0.50));
 		//mq.add(new MsgDriveDistance(10.0, 5.0));
