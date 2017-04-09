@@ -1,4 +1,5 @@
 import time
+import copy
 import SocketServer
 import threading
 import pygame
@@ -29,7 +30,6 @@ LOGGER.Low("Beginning Program Execution")
 motorHandlerLock = threading.Lock()
 sensorHandlerLock = threading.Lock()
 LOGGER.Low("Motor Handler Lock: " + str(motorHandlerLock))
-
 
 def motorCommunicationThread():
 	while True:
@@ -138,11 +138,7 @@ if CONSTANTS.USING_JOYSTICK:
 	joystick1.init()
 	jReader = JoystickReader(joystick1)
 	
-
-
-
 ceaseAllMotorFunctions()
-
 
 if CONSTANTS.USING_MOTOR_BOARD:
 	LOGGER.Debug("Initializing motor board thread...")
@@ -182,7 +178,7 @@ while robotEnabled:
 		while(not connected):
 			try:
 				if(outboundMessageQueue.isEmpty()):
-					networkClient.send("Hello World\n")
+					networkClient.send(motorHandler.getMotorNetworkMessage()+"\n\r")
 				else:
 					networkClient.send(outboundMessageQueue.getNext())
 				connected = True
@@ -199,6 +195,7 @@ while robotEnabled:
 		
 		if(not inboundMessageQueue.isEmpty()):
 			currentMessage = inboundMessageQueue.getNext()
+			currentMessage.printMessage()
 			lastReceivedMessageNumber = currentReceivedMessageNumber
 			currentReceivedMessageNumber = currentMessage.messageNumber
 			
