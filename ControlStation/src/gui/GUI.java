@@ -28,6 +28,8 @@ import common.MessageFactory;
 import common.MessageQueue;
 import common.MessageType;
 import messages.*;
+import network.CameraServer;
+import network.NetworkServer;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -35,10 +37,36 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class GUI extends JFrame{
+public class GUI extends JFrame
+{
+	
+	/*
+	 * Small class to handle constantly updating the robot data boxes
+	 */
+	public static class RobotDataUpdateTask extends TimerTask
+	{
+		public RobotDataUpdateTask(){};
+		public void run(){updateRobotDataBoxes();}
+	}
+	
+	private static RobotData robotData = new RobotData();
+	private static MessageQueue messageQueue = new MessageQueue();
+	private NetworkServer server = new NetworkServer(11000, messageQueue, robotData);
+	private boolean runServer = false;
+	
+	private DefaultListModel<String> model = new DefaultListModel<String>();
+	private JList messageList = new JList<String>(model);
+	private MessageType selectedMessageType = MessageType.MSG_STOP;
+	private Message selectedMessage = new MsgStop();
+	private JLabel[] messageLabels = new JLabel[8];
 	
 	private JFrame frame;
+	private static ImagePanel panel = new ImagePanel();
 	private JTextField tbox_messageAddPosition;
 	private JTextField tbox_data0;
 	private JTextField tbox_data1;
@@ -48,80 +76,81 @@ public class GUI extends JFrame{
 	private JTextField tbox_data5;
 	private JTextField tbox_data6;
 	private JTextField tbox_data7;
-	
-	private MessageQueue messageQueue;
-	private DefaultListModel<String> model = new DefaultListModel<String>();
-	private JList messageList = new JList<String>(model);
-	private MessageType selectedMessageType = MessageType.MSG_STOP;
-	private Message selectedMessage = new MsgStop();
-	private JLabel[] messageLabels = new JLabel[8];
-	private JTextField tbox_leftMotorID;
-	private JTextField tbox_leftMotorCurrent;
-	private JTextField tbox_leftMotorVoltage;
-	private JTextField tbox_leftMotorTemperature;
-	private JTextField tbox_leftMotorMode;
-	private JTextField tbox_leftMotorSetpoint;
-	private JTextField tbox_leftMotorPosition;
-	private JTextField tbox_leftMotorSpeed;
-	private JTextField tbox_leftMotorFLimit;
-	private JTextField tbox_leftMotorRLimit;
-	private JTextField tbox_rightMotorID;
-	private JTextField tbox_rightMotorCurrent;
-	private JTextField tbox_rightMotorVoltage;
-	private JTextField tbox_rightMotorTemperature;
-	private JTextField tbox_rightMotorMode;
-	private JTextField tbox_rightMotorSetpoint;
-	private JTextField tbox_rightMotorPosition;
-	private JTextField tbox_rightMotorSpeed;
-	private JTextField tbox_rightMotorFLimit;
-	private JTextField tbox_rightMotorRLimit;
-	private JTextField tbox_scoopMotorID;
-	private JTextField tbox_scoopMotorCurrent;
-	private JTextField tbox_scoopMotorVoltage;
-	private JTextField tbox_scoopMotorTemperature;
-	private JTextField tbox_scoopMotorMode;
-	private JTextField tbox_scoopMotorSetpoint;
-	private JTextField tbox_scoopMotorPosition;
-	private JTextField tbox_scoopMotorSpeed;
-	private JTextField tbox_scoopMotorFLimit;
-	private JTextField tbox_scoopMotorRLimit;
-	private JTextField tbox_depthMotorID;
-	private JTextField tbox_depthMotorCurrent;
-	private JTextField tbox_depthMotorVoltage;
-	private JTextField tbox_depthMotorTemperature;
-	private JTextField tbox_depthMotorMode;
-	private JTextField tbox_depthMotorSetpoint;
-	private JTextField tbox_depthMotorPosition;
-	private JTextField tbox_depthMotorSpeed;
-	private JTextField tbox_depthMotorFLimit;
-	private JTextField tbox_depthMotorRLimit;
-	private JTextField tbox_winchMotorID;
-	private JTextField tbox_winchMotorCurrent;
-	private JTextField tbox_winchMotorVoltage;
-	private JTextField tbox_winchMotorTemperature;
-	private JTextField tbox_winchMotorMode;
-	private JTextField tbox_winchMotorSetpoint;
-	private JTextField tbox_winchMotorPosition;
-	private JTextField tbox_winchMotorSpeed;
-	private JTextField tbox_winchMotorFLimit;
-	private JTextField tbox_winchMotorRLimit;
+	private static JTextField tbox_leftMotorID;
+	private static JTextField tbox_leftMotorCurrent;
+	private static JTextField tbox_leftMotorVoltage;
+	private static JTextField tbox_leftMotorTemperature;
+	private static JTextField tbox_leftMotorMode;
+	private static JTextField tbox_leftMotorSetpoint;
+	private static JTextField tbox_leftMotorPosition;
+	private static JTextField tbox_leftMotorSpeed;
+	private static JTextField tbox_leftMotorFLimit;
+	private static JTextField tbox_leftMotorRLimit;
+	private static JTextField tbox_rightMotorID;
+	private static JTextField tbox_rightMotorCurrent;
+	private static JTextField tbox_rightMotorVoltage;
+	private static JTextField tbox_rightMotorTemperature;
+	private static JTextField tbox_rightMotorMode;
+	private static JTextField tbox_rightMotorSetpoint;
+	private static JTextField tbox_rightMotorPosition;
+	private static JTextField tbox_rightMotorSpeed;
+	private static JTextField tbox_rightMotorFLimit;
+	private static JTextField tbox_rightMotorRLimit;
+	private static JTextField tbox_scoopMotorID;
+	private static JTextField tbox_scoopMotorCurrent;
+	private static JTextField tbox_scoopMotorVoltage;
+	private static JTextField tbox_scoopMotorTemperature;
+	private static JTextField tbox_scoopMotorMode;
+	private static JTextField tbox_scoopMotorSetpoint;
+	private static JTextField tbox_scoopMotorPosition;
+	private static JTextField tbox_scoopMotorSpeed;
+	private static JTextField tbox_scoopMotorFLimit;
+	private static JTextField tbox_scoopMotorRLimit;
+	private static JTextField tbox_depthMotorID;
+	private static JTextField tbox_depthMotorCurrent;
+	private static JTextField tbox_depthMotorVoltage;
+	private static JTextField tbox_depthMotorTemperature;
+	private static JTextField tbox_depthMotorMode;
+	private static JTextField tbox_depthMotorSetpoint;
+	private static JTextField tbox_depthMotorPosition;
+	private static JTextField tbox_depthMotorSpeed;
+	private static JTextField tbox_depthMotorFLimit;
+	private static JTextField tbox_depthMotorRLimit;
+	private static JTextField tbox_winchMotorID;
+	private static JTextField tbox_winchMotorCurrent;
+	private static JTextField tbox_winchMotorVoltage;
+	private static JTextField tbox_winchMotorTemperature;
+	private static JTextField tbox_winchMotorMode;
+	private static JTextField tbox_winchMotorSetpoint;
+	private static JTextField tbox_winchMotorPosition;
+	private static JTextField tbox_winchMotorSpeed;
+	private static JTextField tbox_winchMotorFLimit;
+	private static JTextField tbox_winchMotorRLimit;
 	
 	public static void main(String[] args) 
 	{
-		MessageQueue messageQueue = new MessageQueue();
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		//MessageQueue messageQueue = new MessageQueue();
+		
+		EventQueue.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
 				try {
+					Timer simpleTimer = new Timer();
+					Thread cameraServerThread = new Thread(new CameraServer(panel));
+					cameraServerThread.start();
 					GUI window = new GUI(messageQueue);
+					simpleTimer.scheduleAtFixedRate(new RobotDataUpdateTask(), 1000, 500);
 					window.setVisible(true);
-				} catch (Exception e) {
+				} 
+				catch (Exception e) 
+				{
 					e.printStackTrace();
 				}
 			}
 		});
 	}
-	
-	
+
 	private void initialize(MessageQueue messageQueue)
 	{
 		this.messageQueue = messageQueue;
@@ -133,21 +162,14 @@ public class GUI extends JFrame{
 		setTitle("Markhor.exe");
 		setSize(new Dimension(1600, 900));
 		setResizable(false);
-		
+			
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setMaximumSize(new Dimension(785, 32767));
 		
-		JPanel panel = new JPanel();
 		panel.setBackground(Color.LIGHT_GRAY);
 		
-		
-		
 		JPanel panel_1 = new JPanel();
-		
-		
-		
 		JLabel lblStatus = new JLabel("Status:");
-		
 		JLabel lblResolution = new JLabel("Resolution");
 		
 		JComboBox<String> comboBox = new JComboBox<String>();
@@ -254,11 +276,40 @@ public class GUI extends JFrame{
 		btnClearAll.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
 		JButton btnStop = new JButton("STOP");
+		btnStop.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				if(runServer)
+				{
+					try 
+					{
+						server.stopServer();
+					} 
+					catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+				runServer = false;
+			}
+		});
 		btnStop.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnStop.setForeground(new Color(255, 255, 255));
 		btnStop.setBackground(new Color(255, 0, 0));
 		
 		JButton btnStartQueue = new JButton("START");
+		btnStartQueue.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				if(!runServer)
+				{
+					server.startServer();
+				}
+				runServer = true;
+			}
+		});
 		btnStartQueue.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnStartQueue.setBackground(new Color(0, 128, 0));
 		btnStartQueue.setForeground(new Color(255, 255, 255));
@@ -439,7 +490,32 @@ public class GUI extends JFrame{
 		JButton btnAddToEnd = new JButton("Add to End");
 		btnAddToEnd.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				//array of pointers to text boxes so they can easily be
+				//iterated over
+				JTextField[] tboxes = new JTextField[8];
+				tboxes[0] = tbox_data0;
+				tboxes[1] = tbox_data1;
+				tboxes[2] = tbox_data2;
+				tboxes[3] = tbox_data3;
+				tboxes[4] = tbox_data4;
+				tboxes[5] = tbox_data5;
+				tboxes[6] = tbox_data6;
+				tboxes[7] = tbox_data7;
+				Double[] tboxData = new Double[8]; 
+				for(int i = 0; i < 8; i++)
+				{
+					try
+					{
+						tboxData[i] = Double.parseDouble(tboxes[i].getText());
+					}
+					catch(Exception exception) 
+					{
+						tboxData[i] = 0.0;
+					}
+					selectedMessage.setDataByIndex(i, tboxData[i]);
+				}
 				messageQueue.addAtBack(selectedMessage);
 				updateMessageQueueList(messageList);
 				selectedMessage = MessageFactory.makeMessage(selectedMessageType);
@@ -1103,6 +1179,67 @@ public class GUI extends JFrame{
 			}
 		}
 	}
+	
+	private static void updateRobotDataBoxes()
+	{
+		tbox_leftMotorID.setText((robotData.getLeftMotor().getDeviceID().toString()));
+		tbox_leftMotorCurrent.setText((robotData.getLeftMotor().getCurrent().toString()));
+		tbox_leftMotorVoltage.setText((robotData.getLeftMotor().getVoltage().toString()));
+		tbox_leftMotorTemperature.setText((robotData.getLeftMotor().getTemperature().toString()));
+		tbox_leftMotorMode.setText((robotData.getLeftMotor().getMode().toString()));
+		tbox_leftMotorSetpoint.setText((robotData.getLeftMotor().getSetpoint().toString()));
+		tbox_leftMotorPosition.setText((robotData.getLeftMotor().getPosition().toString()));
+		tbox_leftMotorSpeed.setText((robotData.getLeftMotor().getSpeed().toString()));
+		tbox_leftMotorFLimit.setText((robotData.getLeftMotor().getForwardLimit().toString()));
+		tbox_leftMotorRLimit.setText((robotData.getLeftMotor().getReverseLimit().toString()));
+		
+		tbox_rightMotorID.setText((robotData.getRightMotor().getDeviceID().toString()));
+		tbox_rightMotorCurrent.setText((robotData.getRightMotor().getCurrent().toString()));
+		tbox_rightMotorVoltage.setText((robotData.getRightMotor().getVoltage().toString()));
+		tbox_rightMotorTemperature.setText((robotData.getRightMotor().getTemperature().toString()));
+		tbox_rightMotorMode.setText((robotData.getRightMotor().getMode().toString()));
+		tbox_rightMotorSetpoint.setText((robotData.getRightMotor().getSetpoint().toString()));
+		tbox_rightMotorPosition.setText((robotData.getRightMotor().getPosition().toString()));
+		tbox_rightMotorSpeed.setText((robotData.getRightMotor().getSpeed().toString()));
+		tbox_rightMotorFLimit.setText((robotData.getRightMotor().getForwardLimit().toString()));
+		tbox_rightMotorRLimit.setText((robotData.getRightMotor().getReverseLimit().toString()));
+		
+		tbox_scoopMotorID.setText((robotData.getScoopMotor().getDeviceID().toString()));
+		tbox_scoopMotorCurrent.setText((robotData.getScoopMotor().getCurrent().toString()));
+		tbox_scoopMotorVoltage.setText((robotData.getScoopMotor().getVoltage().toString()));
+		tbox_scoopMotorTemperature.setText((robotData.getScoopMotor().getTemperature().toString()));
+		tbox_scoopMotorMode.setText((robotData.getScoopMotor().getMode().toString()));
+		tbox_scoopMotorSetpoint.setText((robotData.getScoopMotor().getSetpoint().toString()));
+		tbox_scoopMotorPosition.setText((robotData.getScoopMotor().getPosition().toString()));
+		tbox_scoopMotorSpeed.setText((robotData.getScoopMotor().getSpeed().toString()));
+		tbox_scoopMotorFLimit.setText((robotData.getScoopMotor().getForwardLimit().toString()));
+		tbox_scoopMotorRLimit.setText((robotData.getScoopMotor().getReverseLimit().toString()));
+		
+		tbox_depthMotorID.setText((robotData.getDepthMotor().getDeviceID().toString()));
+		tbox_depthMotorCurrent.setText((robotData.getDepthMotor().getCurrent().toString()));
+		tbox_depthMotorVoltage.setText((robotData.getDepthMotor().getVoltage().toString()));
+		tbox_depthMotorTemperature.setText((robotData.getDepthMotor().getTemperature().toString()));
+		tbox_depthMotorMode.setText((robotData.getDepthMotor().getMode().toString()));
+		tbox_depthMotorSetpoint.setText((robotData.getDepthMotor().getSetpoint().toString()));
+		tbox_depthMotorPosition.setText((robotData.getDepthMotor().getPosition().toString()));
+		tbox_depthMotorSpeed.setText((robotData.getDepthMotor().getSpeed().toString()));
+		tbox_depthMotorFLimit.setText((robotData.getDepthMotor().getForwardLimit().toString()));
+		tbox_depthMotorRLimit.setText((robotData.getDepthMotor().getReverseLimit().toString()));
+		
+		tbox_winchMotorID.setText((robotData.getWinchMotor().getDeviceID().toString()));
+		tbox_winchMotorCurrent.setText((robotData.getWinchMotor().getCurrent().toString()));
+		tbox_winchMotorVoltage.setText((robotData.getWinchMotor().getVoltage().toString()));
+		tbox_winchMotorTemperature.setText((robotData.getWinchMotor().getTemperature().toString()));
+		tbox_winchMotorMode.setText((robotData.getWinchMotor().getMode().toString()));
+		tbox_winchMotorSetpoint.setText((robotData.getWinchMotor().getSetpoint().toString()));
+		tbox_winchMotorPosition.setText((robotData.getWinchMotor().getPosition().toString()));
+		tbox_winchMotorSpeed.setText((robotData.getWinchMotor().getSpeed().toString()));
+		tbox_winchMotorFLimit.setText((robotData.getWinchMotor().getForwardLimit().toString()));
+		tbox_winchMotorRLimit.setText((robotData.getWinchMotor().getReverseLimit().toString()));		
+	}
+	
+	
+	
 
 	public GUI(MessageQueue messageQueue) {
 		initialize(messageQueue);

@@ -5,26 +5,32 @@ import java.net.*;
 
 import common.Gamepad;
 import common.MessageQueue;
+import gui.RobotData;
 
 public class NetworkServer extends Thread
 {
 	private ServerSocket serverSocket;
 	private MessageQueue queue;
+	private RobotData robotData;
 	private int port;
 	private boolean running = false;
 	private Gamepad g = new Gamepad();
 	
-	public NetworkServer(int port, MessageQueue queue)
+	public NetworkServer(int port, MessageQueue queue, RobotData robotData)
 	{
 		this.port = port;
 		this.queue = queue;
+		this.robotData = robotData;
 	}
 	
 	public void startServer()
 	{
 		try
 		{
-			serverSocket = new ServerSocket(port);
+			if(serverSocket == null)
+			{
+				serverSocket = new ServerSocket(port);
+			}
 			this.start();
 		}
 		catch (IOException e)
@@ -33,10 +39,13 @@ public class NetworkServer extends Thread
 		}
 	}
 	
-	public void stopServer()
+	public void stopServer() throws IOException
 	{
 		running = false;
+		serverSocket.close();
 		this.interrupt();
+		serverSocket.close();
+		
 	}
 	
 	@Override
@@ -48,7 +57,7 @@ public class NetworkServer extends Thread
 			try
 			{
 				Socket socket = serverSocket.accept();
-				RequestHandler requestHandler = new RequestHandler(socket, queue);
+				RequestHandler requestHandler = new RequestHandler(socket, queue, robotData);
 				requestHandler.start();
 			}
 			catch(IOException e)

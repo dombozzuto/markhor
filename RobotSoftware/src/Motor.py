@@ -8,6 +8,9 @@ class Motor:
 	def __init__(self, motor_name, dev_id, mode):
 		self.motor_name = motor_name
 		self.deviceID = dev_id
+		self.temperature_val = 0
+		self.current_val = 0
+		self.voltageOutput = 0
 		self.setpoint_val = 0
 		self.actual_val = 0
 		self.speed = 0
@@ -57,7 +60,7 @@ class Motor:
 						self.voltageOutput = msg_voltageOutput
 						self.speed = msg_speed
 						self.position = msg_position
-						self.controlMode = msg_controlMode
+						self.mode  = msg_controlMode
 						self.actual_val = msg_setpoint
 						self.forward_limit = msg_forward_limit
 						self.reverse_limit = msg_reverse_limit
@@ -92,6 +95,18 @@ class Motor:
 	def getStateMessage(self):
 		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(self.setpoint_val) + ">"
 
-
+	def getNetworkMessage(self):
+		msg = "<"
+		msg += str(self.deviceID) + ":"
+		msg += str(self.current_val) + ":"
+		msg += str(self.temperature_val) + ":"
+		msg += str(self.voltageOutput) + ":"
+		msg += str(self.speed) + ":"
+		msg += str(self.position) + ":"
+		msg += str(self.actual_val) + ":"
+		msg += str(self.mode) + ":"
+		msg += str(int(self.forward_limit)) + ":"
+		msg += str(int(self.reverse_limit)) + ">"
+		return msg
 
 	
