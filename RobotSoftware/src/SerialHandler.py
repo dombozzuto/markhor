@@ -62,7 +62,7 @@ class SerialHandler():
 			#		if self.inbound_buffer[-leneol:] == eol:
 			#			newMsg = str(self.inbound_buffer)
 			#			self.inbound_buffer = bytearray()
-		#LOGGER.Debug("Received " + str(line).strip('\n'))
+		LOGGER.Debug(str(line))
 		return str(line)
 		#return newMsg
 

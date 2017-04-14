@@ -1153,6 +1153,7 @@ public class GUI extends JFrame
 	
 	private void setCommandComboBoxStrings(JComboBox<String> cbox)
 	{
+		//these need to be in the same order as MessageType
 		cbox.addItem("STOP");
 		cbox.addItem("Drive Time");
 		cbox.addItem("Drive Distance");
@@ -1166,6 +1167,7 @@ public class GUI extends JFrame
 		cbox.addItem("Bucket Position");
 		cbox.addItem("Stop Time");
 		cbox.addItem("Motor Values");
+		cbox.addItem("Ratchet Position");
 	}
 	
 	private void updateMessageLabels()

@@ -20,6 +20,7 @@ from MessageQueue import MessageQueue
 from JoystickReader import JoystickReader
 from NetworkClient import NetworkClient
 from NetworkMessage import NetworkMessage
+from Servo import Servo
 import BeepCodes as BEEPCODES
 
 from time import gmtime, strftime
@@ -28,8 +29,8 @@ from time import gmtime, strftime
 LOGGER.Low("Beginning Program Execution")
 
 motorHandlerLock = threading.Lock()
-sensorHandlerLock = threading.Lock()
-LOGGER.Low("Motor Handler Lock: " + str(motorHandlerLock))
+#sensorHandlerLock = threading.Lock()
+#LOGGER.Low("Motor Handler Lock: " + str(motorHandlerLock))
 
 def motorCommunicationThread():
 	while True:
@@ -42,10 +43,13 @@ def motorCommunicationThread():
 	
 def sensorCommunicationThread():
 	while True:
-		sensorHandlerLock.acquire()
+		#sensorHandlerLock.acquire()
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
-		sensorHandlerLock.release()
+		outboundSensorMessage = sensorHandler.getServoStateMessage()
+		LOGGER.Debug(outboundSensorMessage)
+		sensorSerialHandler.sendMessage(outboundSensorMessage)
+		#sensorHandlerLock.release()
 		
 def ceaseAllMotorFunctions():
 	leftDriveMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS, 0.0)
@@ -59,16 +63,18 @@ LOGGER.Debug("Initializing handlers...")
 motorHandler = MotorHandler()
 sensorHandler = SensorHandler()
 
-if CONSTANTS.USING_MOTOR_BOARD:
-	LOGGER.Debug("Initializing motor serial handler...")
-	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT)
-	motorSerialHandler.initSerial()
-	#motorSerialHandler.sendMessage("<ResetDriveEncoders>\n")
 	
 if CONSTANTS.USING_SENSOR_BOARD:
 	LOGGER.Debug("Initializing sensor serial handler...")
 	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT)
 	sensorSerialHandler.initSerial()
+
+if CONSTANTS.USING_MOTOR_BOARD:
+	LOGGER.Debug("Initializing motor serial handler...")
+	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT)
+	motorSerialHandler.initSerial()
+	#motorSerialHandler.sendMessage("<ResetDriveEncoders>\n")
+
 
 #initialize network comms & server thread
 if CONSTANTS.USING_NETWORK_COMM:
@@ -115,6 +121,12 @@ winchMotorCurrentSense = Sensor("WinchMotorCurrentSense")
 scoopReedSwitch = Sensor("ScoopReedSwitch")
 bucketMaterialDepthSense = Sensor("BucketMaterialDepthSense")
 
+ratchetServo = Servo()
+camServo1 = Servo()
+camServo2 = Servo()
+camServo3 = Servo()
+camServo4 = Servo()
+
 # initialize sensor handler and add sensors
 LOGGER.Debug("Linking sensor objects to sensor handler...")
 sensorHandler.addSensor(leftDriveCurrentSense)
@@ -124,6 +136,12 @@ sensorHandler.addSensor(collectorScoopsCurrentSense)
 sensorHandler.addSensor(winchMotorCurrentSense)
 sensorHandler.addSensor(scoopReedSwitch)
 sensorHandler.addSensor(bucketMaterialDepthSense)
+
+sensorHandler.addServo(ratchetServo)
+sensorHandler.addServo(camServo1)
+sensorHandler.addServo(camServo2)
+sensorHandler.addServo(camServo3)
+sensorHandler.addServo(camServo4)
 
 # initialize robotState
 LOGGER.Debug("Initializing robot state...")
@@ -250,6 +268,10 @@ while robotEnabled:
 			elif(currentMessage.type == "MSG_MOTOR_VALUES"):
 				LOGGER.Debug("Received a MSG_MOTOR_VALUES")
 				print "MADE IT 1"
+			
+			elif(currentMessage.type == "MSG_RATCHET_POSITION"):
+				LOGGER.Debug("Received a MSG_RATCHET_POSITION")
+		    
 			else:
 				LOGGER.Moderate("Received an invalid message.")
 				
@@ -397,6 +419,11 @@ while robotEnabled:
 			collectorDepthMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS,currentMessage.messageData[3])
 			winchMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS,currentMessage.messageData[4])
 
+		elif(currentMessage.type == "MSG_RATCHET_POSITION"):
+			ratchetServo.setSetpoint(int(currentMessage.messageData[0]))
+			outboundMessageQueue.add("Finished\n")
+		
+
 	if CONSTANTS.USING_JOYSTICK:
 		#pygame.event.get()
 		#jReader.updateValues()
@@ -423,6 +450,8 @@ while robotEnabled:
 	#LOGGER.Low("LMotor Speed: " + str(leftDriveMotor.speed) + " RMotor Speed: " + str(rightDriveMotor.speed))
 	#LOGGER.Low("LMotor Position: " + str(leftDriveMotor.position) + "RMotor Position: " + str(rightDriveMotor.position))
 	#sleep to maintain a more constant thread time (specified in Constants.py)
+
+
 	loopEndTime = time.time()
 	loopExecutionTime = loopEndTime - loopStartTime
 	sleepTime = CONSTANTS.LOOP_DELAY_TIME - loopExecutionTime

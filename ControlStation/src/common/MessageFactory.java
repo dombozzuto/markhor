@@ -20,6 +20,7 @@ public class MessageFactory
 	   else if(type == MessageType.MSG_BUCKET_POSITION) { return new MsgBucketPosition(); }
 	   //else if(type == MessageType.MSG_STOP_TIME) { return new MsgStopTime(); }
 	   else if(type == MessageType.MSG_MOTOR_VALUES) { return new MsgMotorValues(); }
+	   else if(type == MessageType.MSG_RATCHET_POSITION) { return new MsgRatchetPosition(); }
       
       return null;
    }
