@@ -1,2 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="messages.Message"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.net.Socket"/>
+<fullyQualifiedTypeName name="messages.MsgDriveTime"/>
+<fullyQualifiedTypeName name="common.Message"/>
+<fullyQualifiedTypeName name="common.AbsMessage"/>
+<fullyQualifiedTypeName name="org.junit.Before"/>
+<fullyQualifiedTypeName name="java.util.regex.Pattern"/>
+<fullyQualifiedTypeName name="java.util.regex.Matcher"/>
+<fullyQualifiedTypeName name="gui.RobotData"/>
+<fullyQualifiedTypeName name="RobotDataTests"/>
+<fullyQualifiedTypeName name="common.MotorMode"/>
+</qualifiedTypeNameHistroy>
