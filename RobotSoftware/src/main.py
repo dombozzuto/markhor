@@ -87,16 +87,16 @@ currentMessage = NetworkMessage("")
 LOGGER.Debug("Initializing motor objects...")
 leftDriveMotor       = Motor("LeftDriveMotor",       CONSTANTS.LEFT_DRIVE_DEVICE_ID,       MOTOR_MODES.K_PERCENT_VBUS)
 rightDriveMotor      = Motor("RightDriveMotor",      CONSTANTS.RIGHT_DRIVE_DEVICE_ID,      MOTOR_MODES.K_PERCENT_VBUS)
-collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.K_PERCENT_VBUS)
 collectorScoopsMotor = Motor("CollectorScoopsMotor", CONSTANTS.COLLECTOR_SCOOPS_DEVICE_ID, MOTOR_MODES.K_PERCENT_VBUS)
+collectorDepthMotor  = Motor("CollectorDepthMotor",  CONSTANTS.COLLECTOR_DEPTH_DEVICE_ID,  MOTOR_MODES.K_PERCENT_VBUS)
 winchMotor           = Motor("WinchMotor",           CONSTANTS.WINCH_DEVICE_ID,            MOTOR_MODES.K_PERCENT_VBUS)
 
 # initialize motor handler and add motors
 LOGGER.Debug("Linking motors to motor handler...")
 motorHandler.addMotor(leftDriveMotor)
 motorHandler.addMotor(rightDriveMotor)
-motorHandler.addMotor(collectorDepthMotor)
 motorHandler.addMotor(collectorScoopsMotor)
+motorHandler.addMotor(collectorDepthMotor)
 motorHandler.addMotor(winchMotor)
 
 # initialize encoder reset flags
