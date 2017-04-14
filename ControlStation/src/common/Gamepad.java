@@ -31,9 +31,7 @@ public class Gamepad
 	public Gamepad()
 	{
 		initialize();
-		update();
-		printGamepadComponents();
-		
+		update();		
 	}
 	
 	/*
@@ -57,7 +55,7 @@ public class Gamepad
 		if(joystick == null)
 		{
 			System.out.println("Joystick not connected.");
-			System.exit(0);
+			//System.exit(0);
 		}
 	}
 	
@@ -82,7 +80,11 @@ public class Gamepad
 	
 	public void update()
 	{
-		joystick.poll();
+		try
+		{
+			joystick.poll();
+		}
+		catch(Exception e){}
 	}
 	
 	private void printGamepadComponents()
