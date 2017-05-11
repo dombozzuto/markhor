@@ -1,4 +1,5 @@
 import time
+from Constants import LOGGER
 
 class MotorHandler:
 
@@ -18,6 +19,16 @@ class MotorHandler:
 			msg += motor.getStateMessage()
 		msg += "\n\r"
 		return msg
+
+	def getMotorByteMessage(self):
+		msg_bytes = b''
+		start_bytes  = b'\xDE\xAD'
+		end_bytes = b'\xBE\xEF'
+		msg_bytes = b''.join([msg_bytes, start_bytes])
+		for motor in self.motors:
+			msg_bytes = b''.join([msg_bytes, motor.getByteMessage()])
+		msg_bytes = b''.join([msg_bytes, end_bytes])
+		return msg_bytes
 	
 	def getMotorNetworkMessage(self):
 		msg = ""

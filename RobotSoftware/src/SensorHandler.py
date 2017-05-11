@@ -23,7 +23,7 @@ class SensorHandler:
 			message += str(self.servos[i].getSetpoint())
 			if(i != len(self.servos) - 1):
 				message += ":"
-		message += ">"
+		message += ">\n"
 		return message
 
 	def getSensorValues(self):

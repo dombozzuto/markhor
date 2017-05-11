@@ -1,4 +1,5 @@
 import re
+import struct
 import Constants as CONSTANTS
 from Constants import LOGGER
 import MotorModes as MOTOR_MODES
@@ -30,7 +31,7 @@ class Motor:
 		# message contains info for all motors, need to parse info specific to this motor
 		#matchList = re.findall(r'<(\d+):(\d+):(\d+):(\d+):(\d+):(\-?\d+):(\d+):(\d+):(\d+):(\d+)>', update_info, re.M|re.I)
 		#matchList = re.findall(r'<(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+):(\-?\d+)>', update_info, re.M|re.I)
-		matchList = re.findall(r'<(\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\d+):([01]):([01])>', update_info, re.M|re.I)
+		matchList = re.findall(r'<(\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\-?\d+\.\d+):(\d+):([01]):([01])>', update_info, re.M|re.I)
 		if(len(matchList) == 0):
 			LOGGER.Low("No Matches!:" + update_info)
 
@@ -45,8 +46,8 @@ class Motor:
 					#try to read all the values before assigning anything
 					msg_deviceID = int(match[0])
 					msg_current = float(match[1])
-					msg_temperature = float(match[2])
-					msg_voltageOutput = float(match[3])
+#					msg_temperature = float(match[2])
+#					msg_voltageOutput = float(match[3])
 					msg_speed = float(match[4])
 					msg_position = float(match[5])
 					msg_setpoint = float(match[6])
@@ -56,8 +57,8 @@ class Motor:
 
 					if(msg_deviceID == self.deviceID):
 						self.current_val = msg_current
-						self.temperature_val = msg_temperature
-						self.voltageOutput = msg_voltageOutput
+#						self.temperature_val = msg_temperature
+#						self.voltageOutput = msg_voltageOutput
 						self.speed = msg_speed
 						self.position = msg_position
 						self.mode  = msg_controlMode
@@ -93,7 +94,17 @@ class Motor:
 	#	return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(int(self.setpoint_val * 1000)) + ">"
 
 	def getStateMessage(self):
-		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(self.setpoint_val) + ">"
+		rounded_val = "%.2f" % self.setpoint_val
+		return "<" + str(self.deviceID) + ":" + str(self.mode) + ":" + str(rounded_val) + ">"
+	
+	def getByteMessage(self):
+		msg = b''
+		#msg.append(self.deviceID)
+		#msg.append(self.mode)
+		msg = b''.join([msg, struct.pack("B", self.deviceID)])
+		msg = b''.join([msg, struct.pack("B", self.mode)])
+		msg = b''.join([msg, struct.pack("f", self.setpoint_val)])
+		return msg
 
 	def getNetworkMessage(self):
 		msg = "<"

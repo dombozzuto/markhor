@@ -37,18 +37,23 @@ def motorCommunicationThread():
 		motorHandlerLock.acquire()
 		inboundMotorMessage = motorSerialHandler.getMessage()
 		motorHandler.updateMotors(inboundMotorMessage)
-		outboundMotorMessage = motorHandler.getMotorStateMessage()
-		motorSerialHandler.sendMessage(outboundMotorMessage)
+		#outboundMotorMessage = motorHandler.getMotorStateMessage()
+		#motorSerialHandler.sendMessage(outboundMotorMessage)
+		outboundMotorMessage = motorHandler.getMotorByteMessage()
+		#LOGGER.Low(str(bytes(outboundMotorMessage)))
+		#LOGGER.Low(str(len(outboundMotorMessage)))
+		motorSerialHandler.sendByteMessage(outboundMotorMessage)
 		motorHandlerLock.release()
 	
 def sensorCommunicationThread():
 	while True:
-		#sensorHandlerLock.acquire()
+		#sensorHandlerLock.acquire()		
+		outboundSensorMessage = sensorHandler.getServoStateMessage()
+		sensorSerialHandler.sendMessage(outboundSensorMessage)
+		LOGGER.Debug(outboundSensorMessage)
 		inboundSensorMessage = sensorSerialHandler.getMessage()
 		sensorHandler.updateSensors(inboundSensorMessage)
-		outboundSensorMessage = sensorHandler.getServoStateMessage()
-		LOGGER.Debug(outboundSensorMessage)
-		sensorSerialHandler.sendMessage(outboundSensorMessage)
+		time.sleep(0.1)
 		#sensorHandlerLock.release()
 		
 def ceaseAllMotorFunctions():
@@ -66,12 +71,12 @@ sensorHandler = SensorHandler()
 	
 if CONSTANTS.USING_SENSOR_BOARD:
 	LOGGER.Debug("Initializing sensor serial handler...")
-	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT)
+	sensorSerialHandler = SerialHandler(CONSTANTS.SENSOR_BOARD_PORT, 115200)
 	sensorSerialHandler.initSerial()
 
 if CONSTANTS.USING_MOTOR_BOARD:
 	LOGGER.Debug("Initializing motor serial handler...")
-	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT)
+	motorSerialHandler = SerialHandler(CONSTANTS.MOTOR_BOARD_PORT, 115200)
 	motorSerialHandler.initSerial()
 	#motorSerialHandler.sendMessage("<ResetDriveEncoders>\n")
 
@@ -201,7 +206,7 @@ while robotEnabled:
 					networkClient.send(outboundMessageQueue.getNext())
 				connected = True
 			except:
-				LOGGER.Critical("Could not connect to network, attempting to reconnect...")
+				#LOGGER.Critical("Could not connect to network, attempting to reconnect...")
 				ceaseAllMotorFunctions()
 
 	
@@ -267,7 +272,6 @@ while robotEnabled:
 
 			elif(currentMessage.type == "MSG_MOTOR_VALUES"):
 				LOGGER.Debug("Received a MSG_MOTOR_VALUES")
-				print "MADE IT 1"
 			
 			elif(currentMessage.type == "MSG_RATCHET_POSITION"):
 				LOGGER.Debug("Received a MSG_RATCHET_POSITION")
@@ -418,6 +422,11 @@ while robotEnabled:
 			collectorScoopsMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS,currentMessage.messageData[2])
 			collectorDepthMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS,currentMessage.messageData[3])
 			winchMotor.setSetpoint(MOTOR_MODES.K_PERCENT_VBUS,currentMessage.messageData[4])
+			LOGGER.Debug(str(leftDriveMotor.setpoint_val) + "," + str(rightDriveMotor.setpoint_val) + "," + str(collectorScoopsMotor.setpoint_val) + "," + str(collectorDepthMotor.setpoint_val) + "," + str(winchMotor.setpoint_val))
+			LOGGER.Debug(collectorScoopsMotor.getStateMessage())
+			LOGGER.Debug(collectorDepthMotor.getStateMessage())
+			LOGGER.Debug(winchMotor.getStateMessage())
+			LOGGER.Debug(motorHandler.getMotorStateMessage())
 
 		elif(currentMessage.type == "MSG_RATCHET_POSITION"):
 			ratchetServo.setSetpoint(int(currentMessage.messageData[0]))
@@ -429,8 +438,8 @@ while robotEnabled:
 		#jReader.updateValues()
 		#leftDriveMotor.setSpeed(jReader.axis_y1)
 		#rightDriveMotor.setSpeed(jReader.axis_y2)
-		leftDriveMotor.setSpeed(1.0)
-		rightDriveMotor.setSpeed(-1.0)
+		leftDriveMotor.setSpeed(0)
+		rightDriveMotor.setSpeed(0)
 		collectorDepthMotor.setSpeed(0)
 		collectorScoopsMotor.setSpeed(0)
 		winchMotor.setSpeed(0)

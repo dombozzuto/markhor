@@ -6,9 +6,9 @@ from Constants import LOGGER
 from threading import Lock
 class SerialHandler():
 
-	def __init__(self, port):
+	def __init__(self, port, rate):
 		self.ser = serial.Serial(timeout=1)
-		self.ser.baudrate = 115200
+		self.ser.baudrate = rate
 		self.ser.port = port
 		self.inbound_buffer = bytearray()
 		self.msg = ""
@@ -34,6 +34,10 @@ class SerialHandler():
 	def sendMessage(self, msg):
 		self.ser.write(msg.encode())
 		#LOGGER.Debug("Sent:" + msg)
+
+	def sendByteMessage(self, msg):
+		self.ser.write(msg)
+		LOGGER.Debug(msg)
 
 	def _readline(self):
 		eol = b'\r'
