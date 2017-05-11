@@ -45,8 +45,8 @@ namespace Markhor_Motor_Control
 
             outboundMessage += talonDeviceID.ToString() + ":";      //0
             outboundMessage += talonCurrent.ToString() + ":";       //1
-            outboundMessage += talonTemperature.ToString() + ":";   //2
-            outboundMessage += talonVoltage.ToString() + ":";       //3
+            //outboundMessage += talonTemperature.ToString() + ":";   //2
+            //outboundMessage += talonVoltage.ToString() + ":";       //3
             outboundMessage += talonSpeed.ToString() + ":";         //4
             outboundMessage += talonPosition.ToString() + ":";      //5
             outboundMessage += talonSetpoint.ToString() + ":";      //6
