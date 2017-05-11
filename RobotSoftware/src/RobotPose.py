@@ -35,25 +35,29 @@ class RobotPose:
 	''' Robot pose class relative to world
 
 	'''
-	def __init__(self):
-		self.R = np.matrix([[0, 0, 0],[0, 0, 0], [0, 0, 0]]);
-		self.T = np.matrix([[0], [0], [0]]);
+	def __init__(self, R = np.matrix([[1, 0, 0],[0, 1, 0], [0, 0, 1]]), 
+		T = np.matrix([[0], [0], [0]])):
+		self.R = R;
+		self.T = T;
+		self.tf = constructTfMat(self.R, self.T);
 
 	#getter rotation matrix
 	def getRotationMat(self):
-		return self.R;
+		return self.tf[np.ix_([0, 1, 2],[0, 1, 2])];
 
 	#setter rotation matrix
 	def setRotationMat(self, rotMat):
 		self.R = rotMat;
+		self.tf = constructTfMat(self.R, self.T);
 
 	#getter translation matrix
 	def getTranslationMat(self):
-		return self.T;
+		return self.tf[np.ix_([0, 1, 2],[3])];
 
 	#setter translation matrix
 	def setTranslationMat(self, transMat):
 		self.T = transMat;
+		self.tf = constructTfMat(self.R, self.T);
 
 	# Calculates rotation matrix to euler angles
 	def getEulerAngles(self):
@@ -74,13 +78,21 @@ class RobotPose:
 	 
 	    return np.array([x, y, z]);
 
+# constructs 4x4 transformation matrix from rotation and translation matrices
+def constructTfMat(R, T):
+	s = np.matrix([0, 0, 0, 1]);
+	tr = np.concatenate((R, T), axis=1);
+	tf = np.concatenate((tr, s), axis=0);
+	return tf;
+
+# test program
 def main():
 	rp = RobotPose();
 	print "Pose: X"
 	print rp.R;
 	print "Pose: T"
 	print rp.T;
-	print rp.getEulerAngles();
-	
+	print rp.getRotationMat();
+
 if __name__ == '__main__':
 	main();
